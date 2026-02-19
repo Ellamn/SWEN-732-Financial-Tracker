@@ -1,6 +1,8 @@
+import os
+
 import psycopg2
 import yaml
-import os
+
 
 # Attribution: Taken from past RIT classes and slightly modified
 
@@ -54,6 +56,7 @@ def exec_commit(sql, args={}):
     conn.commit()
     conn.close()
     return result
+
 
 def exec_commit_returning(sql, args={}):
     """Execute a write query that RETURNS rows (e.g., INSERT ... RETURNING)."""
