@@ -1,8 +1,10 @@
 import os
 
 import psycopg2
+import psycopg2.extras
 import yaml
 
+psycopg2.extras.register_uuid()
 
 # Attribution: Taken from past RIT classes and slightly modified
 
