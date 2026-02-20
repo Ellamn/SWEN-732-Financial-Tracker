@@ -1,0 +1,5 @@
+host: localhost
+database: swen732
+user: swen732
+password: supersecurepassword
+port: 5432
