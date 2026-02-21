@@ -1,8 +1,11 @@
-from flask import Blueprint
+from flask import Blueprint, request
+from database.src import database as db
 
 income_bp = Blueprint("income",__name__,url_prefix="/income")
 
 
 @income_bp.route('/')
 def hello_world():
-    return 'Howdydo!'
+    return {
+        "message" : "Hello world!"
+    }
