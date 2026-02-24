@@ -8,7 +8,7 @@ psycopg2.extras.register_uuid()
 
 @pytest.fixture(scope="function", autouse=True)
 def reset_database():
-    db_utils.exec_sql_file("schema/public/reset_database.sql")
+    db_utils.exec_sql_file("schema/reset_database.sql")
 
     db_utils.exec_sql_file("schema/public/users.sql")
     db_utils.exec_sql_file("schema/public/balance_events.sql")
