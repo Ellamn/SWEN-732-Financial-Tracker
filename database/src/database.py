@@ -1,10 +1,11 @@
 from src.models.balance_event import BalanceEvent
-from src.db_utils import exec_commit, exec_commit_returning
+from src.db_utils import exec_commit, exec_commit_returning, exec_get_one
 from src.models.budget_goal import BudgetGoal
 from src.models.expense_category import ExpenseCategory
 from src.models.income_source import IncomeSource
 from src.models.user import User
 
+# MARK: User
 def create_user(name: str) -> User:
     sql = """
         INSERT INTO users (username)
@@ -25,6 +26,16 @@ def insert_user(user: User):
 
     exec_commit(sql, user.__dict__)
 
+def get_user(name: str) -> User:
+    sql = """
+    SELECT id, username FROM users WHERE username = %(name)s;
+    """
+
+    user_dict = exec_get_one(sql, {"name": name})
+
+    return User(user_dict[0], user_dict[1])
+
+# MARK: Balance Events
 def insert_balance_event(event: BalanceEvent):
     sql = """
           INSERT INTO balance_events (id, owner, name, amount, date)
@@ -34,6 +45,7 @@ def insert_balance_event(event: BalanceEvent):
 
     exec_commit(sql, event.__dict__)
 
+# MARK: Budget Goal
 def insert_budget_goal(goal: BudgetGoal):
     sql = """
         INSERT INTO budget_goals (id, owner, name, amount, achieve_by_date, started_on)
@@ -43,6 +55,7 @@ def insert_budget_goal(goal: BudgetGoal):
 
     exec_commit(sql, goal.__dict__)
 
+# MARK: Expense Categories
 def insert_expense_category(category: ExpenseCategory):
     sql = """
         INSERT INTO expense_category (id, owner, name)
@@ -52,6 +65,7 @@ def insert_expense_category(category: ExpenseCategory):
 
     exec_commit(sql, category.__dict__)
 
+# MARK: Income Sources
 def insert_income_source(income_source: IncomeSource):
     sql = """
         INSERT INTO income_sources (id, owner, name, is_recurring)
