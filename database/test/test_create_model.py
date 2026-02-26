@@ -1,5 +1,5 @@
 from datetime import datetime
-from uuid import uuid1, UUID
+from uuid import uuid7, UUID
 
 from src import database
 
