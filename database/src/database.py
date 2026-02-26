@@ -85,6 +85,14 @@ def insert_expense_category(category: ExpenseCategory):
 
     exec_commit(sql, category.__dict__)
 
+def get_expense_category(id: UUID):
+    sql = """
+    SELECT id, owner, name FROM expense_category WHERE id=%(id)s;
+    """
+
+    expense_category_dict = exec_get_one(sql, {"id": id})
+    return ExpenseCategory(expense_category_dict[0], expense_category_dict[1], expense_category_dict[2])
+
 # MARK: Income Sources
 def insert_income_source(income_source: IncomeSource):
     sql = """

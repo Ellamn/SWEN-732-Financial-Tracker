@@ -4,6 +4,7 @@ from uuid import uuid7, UUID
 from src import database
 from src.models.balance_event import BalanceEvent
 from src.models.budget_goal import BudgetGoal
+from src.models.expense_category import ExpenseCategory
 
 
 def test_create_user():
@@ -29,3 +30,11 @@ def test_create_budget_goal(test_user: UUID):
     retrieved_goal = database.get_budget_goal(goal.goal_id)
 
     assert goal.goal_id == retrieved_goal.goal_id
+
+def test_create_expense_category(test_user: UUID):
+    category = ExpenseCategory(category_id=uuid7(), owner=test_user, name="test")
+    database.insert_expense_category(category)
+
+    retrieved_category = database.get_expense_category(category.category_id)
+
+    assert category.category_id == retrieved_category.category_id
