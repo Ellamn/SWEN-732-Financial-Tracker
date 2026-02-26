@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from src.models.balance_event import BalanceEvent
 from src.db_utils import exec_commit, exec_commit_returning, exec_get_one
 from src.models.budget_goal import BudgetGoal
@@ -45,6 +47,13 @@ def insert_balance_event(event: BalanceEvent):
 
     exec_commit(sql, event.__dict__)
 
+def get_balance_event(id: UUID) -> BalanceEvent:
+    sql = """
+    SELECT id, owner, name, amount, date FROM balance_events WHERE id=%(id)s;
+    """
+
+    balance_event_dict = exec_get_one(sql, {"id": id})
+    return BalanceEvent(balance_event_dict[0], balance_event_dict[1], balance_event_dict[2], balance_event_dict[3], balance_event_dict[4])
 
 # MARK: Budget Goal
 def insert_budget_goal(goal: BudgetGoal):
