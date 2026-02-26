@@ -12,7 +12,6 @@ def get_balance():
     }
 
 
-
 @balance_bp.route('/', methods=["PUT"])
 def put_balance():
     return {
@@ -20,13 +19,11 @@ def put_balance():
     }
 
 
-
 @balance_bp.route('/', methods=["POST"])
 def post_balance():
     return {
         'message':'Hello world!'
     }
-
 
 
 @balance_bp.route('/', methods=["DELETE"])

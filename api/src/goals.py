@@ -12,7 +12,6 @@ def get_goals():
     }
 
 
-
 @goals_bp.route('/', methods=["PUT"])
 def put_goals():
     return {
@@ -20,13 +19,11 @@ def put_goals():
     }
 
 
-
 @goals_bp.route('/', methods=["POST"])
 def post_goals():
     return {
         'message':'Hello world!'
     }
-
 
 
 @goals_bp.route('/', methods=["DELETE"])

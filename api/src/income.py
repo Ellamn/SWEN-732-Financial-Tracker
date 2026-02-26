@@ -12,7 +12,6 @@ def get_income():
     }
 
 
-
 @income_bp.route('/', methods=["PUT"])
 def put_income():
     return {
@@ -20,13 +19,11 @@ def put_income():
     }
 
 
-
 @income_bp.route('/', methods=["POST"])
 def post_income():
     return {
         'message':'Hello world!'
     }
-
 
 
 @income_bp.route('/', methods=["DELETE"])

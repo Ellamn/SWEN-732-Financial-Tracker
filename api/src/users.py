@@ -12,13 +12,11 @@ def get_users():
     }
 
 
-
 @users_bp.route('/', methods=["PUT"])
 def put_users():
     return {
         'message':'Hello world!'
     }
-
 
 
 @users_bp.route('/', methods=["POST"])
@@ -28,7 +26,6 @@ def post_users():
         "id": user.user_id,
         "name": user.name
     }
-
 
 
 @users_bp.route('/', methods=["DELETE"])

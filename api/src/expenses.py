@@ -12,7 +12,6 @@ def get_expenses():
     }
 
 
-
 @expenses_bp.route('/', methods=["PUT"])
 def put_expenses():
     return {
@@ -20,13 +19,11 @@ def put_expenses():
     }
 
 
-
 @expenses_bp.route('/', methods=["POST"])
 def post_expenses():
     return {
         'message':'Hello world!'
     }
-
 
 
 @expenses_bp.route('/', methods=["DELETE"])

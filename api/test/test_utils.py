@@ -15,9 +15,9 @@ def get_rest_call(url, params = {}, get_header = {}, expected_code = 200):
 
 # For API calls using POST.  params and header are defaulted to 'empty'
 
-def post_rest_call(url, params = {}, post_header = {},expected_code = 200):
+def post_rest_call(url, json = {}, post_header = {}, params = {}, expected_code = 200):
     '''Implements a REST api using the POST verb'''
-    response = requests.post(url, params, headers = post_header)
+    response = requests.post(url, params, json, headers = post_header)
     assert expected_code == response.status_code, f'Response code to {url} not {expected_code}'
     return response.json()
 
