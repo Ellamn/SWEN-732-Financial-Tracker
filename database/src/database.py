@@ -65,6 +65,16 @@ def insert_budget_goal(goal: BudgetGoal):
 
     exec_commit(sql, goal.__dict__)
 
+
+def get_budget_goal(id: UUID) -> BudgetGoal:
+    sql = """
+    SELECT id, owner, name, amount, achieve_by_date, started_on FROM budget_goals WHERE id=%(id)s;
+    """
+
+    budget_goal_dict = exec_get_one(sql, {"id": id})
+    return BudgetGoal(budget_goal_dict[0], budget_goal_dict[1], budget_goal_dict[2], budget_goal_dict[3], budget_goal_dict[4], budget_goal_dict[5])
+
+
 # MARK: Expense Categories
 def insert_expense_category(category: ExpenseCategory):
     sql = """

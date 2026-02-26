@@ -3,6 +3,7 @@ from uuid import uuid7, UUID
 
 from src import database
 from src.models.balance_event import BalanceEvent
+from src.models.budget_goal import BudgetGoal
 
 
 def test_create_user():
@@ -20,4 +21,11 @@ def test_create_balance_event(test_user: UUID):
     retried_event = database.get_balance_event(event.event_id)
 
     assert event.event_id == retried_event.event_id
-    
+
+def test_create_budget_goal(test_user: UUID):
+    goal = BudgetGoal(goal_id=uuid7(), owner=test_user, name="test", amount=100, achieve_by_date=datetime.now(), started_on=datetime.now())
+    database.insert_budget_goal(goal)
+
+    retrieved_goal = database.get_budget_goal(goal.goal_id)
+
+    assert goal.goal_id == retrieved_goal.goal_id
