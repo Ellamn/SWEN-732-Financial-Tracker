@@ -6,6 +6,7 @@ from src.models.balance_event import BalanceEvent
 from src.models.budget_goal import BudgetGoal
 from src.models.expense_category import ExpenseCategory
 from src.models.income_source import IncomeSource
+from src.models.user import User
 
 
 def test_create_user():
@@ -13,8 +14,17 @@ def test_create_user():
     assert user is not None
 
 def test_get_user(test_user: UUID):
-    user = database.get_user("test_user")
+    user = database.get_user_with_name("test_user")
     assert user.user_id == test_user
+
+def test_insert_user():
+    user = User(user_id=uuid7(), name="test_user")
+    database.insert_user(user)
+
+    retrieved_user = database.get_user_with_uuid(user.user_id)
+
+    assert user.user_id == retrieved_user.user_id
+
 
 def test_create_balance_event(test_user: UUID):
     event = BalanceEvent(event_id=uuid7(), owner=test_user, name="test", amount=100, date=datetime.now())

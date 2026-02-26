@@ -28,12 +28,21 @@ def insert_user(user: User):
 
     exec_commit(sql, user.__dict__)
 
-def get_user(name: str) -> User:
+def get_user_with_name(name: str) -> User:
     sql = """
     SELECT id, username FROM users WHERE username = %(name)s;
     """
 
     user_dict = exec_get_one(sql, {"name": name})
+
+    return User(user_dict[0], user_dict[1])
+
+def get_user_with_uuid(id: UUID) -> User:
+    sql = """
+    SELECT id, username FROM users WHERE id = %(id)s;
+    """
+
+    user_dict = exec_get_one(sql, {"id": id})
 
     return User(user_dict[0], user_dict[1])
 
