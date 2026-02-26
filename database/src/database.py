@@ -45,6 +45,7 @@ def insert_balance_event(event: BalanceEvent):
 
     exec_commit(sql, event.__dict__)
 
+
 # MARK: Budget Goal
 def insert_budget_goal(goal: BudgetGoal):
     sql = """

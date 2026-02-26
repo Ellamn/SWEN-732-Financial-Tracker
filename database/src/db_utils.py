@@ -6,6 +6,15 @@ import yaml
 
 psycopg2.extras.register_uuid()
 
+def setup_database_schema():
+    exec_sql_file("schema/reset_database.sql")
+
+    exec_sql_file("schema/public/users.sql")
+    exec_sql_file("schema/public/balance_events.sql")
+    exec_sql_file("schema/public/budget_goals.sql")
+    exec_sql_file("schema/public/expense_category.sql")
+    exec_sql_file("schema/public/income_sources.sql")
+
 # Attribution: Taken from past RIT classes and slightly modified
 
 def connect_to_db(config_file_path: str = '../config/db.yml'):
