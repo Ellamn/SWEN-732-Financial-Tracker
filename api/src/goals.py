@@ -1,5 +1,6 @@
 from flask import Blueprint
 from database.src import database as db
+from api.src.models import BudgetGoal
 
 goals_bp = Blueprint("goals",__name__,url_prefix="/goals")
 

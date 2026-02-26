@@ -1,11 +1,11 @@
 from flask import Flask
 import sys
 
-from balance import balance_bp
-from expenses import expenses_bp
-from goals import goals_bp
-from income import income_bp
-from users import users_bp
+from api.src.balance import balance_bp
+from api.src.expenses import expenses_bp
+from api.src.goals import goals_bp
+from api.src.income import income_bp
+from api.src.users import users_bp
 
 app = Flask(__name__)
 
@@ -21,7 +21,7 @@ app.register_blueprint(users_bp)
 # request.form = request body
 # request.args = query params
 # '/<variable>' = url variable
-
+# https://flask.palletsprojects.com/en/stable/api/#flask.Request
 
 @app.route('/')
 def hello_world():
