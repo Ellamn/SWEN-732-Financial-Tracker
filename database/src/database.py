@@ -102,3 +102,12 @@ def insert_income_source(income_source: IncomeSource):
     """
 
     exec_commit(sql, income_source.__dict__)
+
+def get_income_source(id: UUID):
+    sql = """
+    SELECT id, owner, name, is_recurring FROM income_sources WHERE id=%(id)s;
+    """
+
+    income_source_dict = exec_get_one(sql, {"id": id})
+
+    return IncomeSource(income_source_dict[0], income_source_dict[1], income_source_dict[2], income_source_dict[3])

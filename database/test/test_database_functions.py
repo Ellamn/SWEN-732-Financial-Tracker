@@ -5,6 +5,7 @@ from src import database
 from src.models.balance_event import BalanceEvent
 from src.models.budget_goal import BudgetGoal
 from src.models.expense_category import ExpenseCategory
+from src.models.income_source import IncomeSource
 
 
 def test_create_user():
@@ -38,3 +39,11 @@ def test_create_expense_category(test_user: UUID):
     retrieved_category = database.get_expense_category(category.category_id)
 
     assert category.category_id == retrieved_category.category_id
+
+def test_create_income_source(test_user: UUID):
+    source = IncomeSource(source_id=uuid7(), owner=test_user, name="test", is_recurring=False)
+    database.insert_income_source(source)
+
+    retrieved_source = database.get_income_source(source.source_id)
+
+    assert source.source_id == retrieved_source.source_id
