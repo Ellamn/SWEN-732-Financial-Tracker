@@ -31,3 +31,8 @@ def one_expense(one_user):
 def one_income(one_user):
     expense_id = db_utils.exec_commit_returning("INSERT INTO income_sources(owner, name, is_recurring) VALUES(%(john)s, \'Job\', TRUE) RETURNING id", {"john":one_user})[0][0]
     return expense_id
+
+@pytest.fixture(scope="function")
+def one_goal(one_user):
+    goal_id = db_utils.exec_commit_returning("INSERT INTO budget_goals(owner, name, amount, achieve_by_date, started_on) VALUES(%(john)s, \'New car\', 25000, %(date1)s, %(date2)s) RETURNING id", {"john":one_user, "date1":datetime.datetime.now(), "date2":datetime.datetime.now() + datetime.timedelta(weeks=52)})[0][0]
+    return goal_id
