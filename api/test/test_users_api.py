@@ -5,17 +5,16 @@ from database.src import db_utils
 BASE = 'http://127.0.0.1:5000/users/'
 
 
-def test_get_users():
-    db_utils.exec_commit("INSERT INTO users(username) VALUES('John Doe')")
-
+def test_get_users(one_user):
     result = get_rest_call(BASE,params={"name":"John Doe"},get_header={"Content-Type":"application/json"})
 
-    assert result['name'] == "John Doe"
+    assert result, "Failed to get"
+    assert result['name'] == "John Doe", "Incorrect name"
 
 
 def test_put_users(one_user):
     # TODO
-    result = put_rest_call(f"{BASE}Jane%20Doe?name=John%20Doe", expected_code=501)
+    result = put_rest_call(f"{BASE}Jane%20Doe", params={"name":"John Doe"}, expected_code=501)
 
 
 def test_post_users():

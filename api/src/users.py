@@ -58,12 +58,12 @@ def post_users():
 
 @users_bp.route('/<uuid>', methods=["DELETE"])
 def delete_users(uuid: UUID):
-    return jsonify({"error": "Not implemented"}), 501
     try:
         user = db.get_user_with_uuid(uuid).__dict__
         
         # TODO
         # db.delete_user(user['uuid'])
+        return jsonify({"error": "Not implemented"}), 501
 
     except:
         return jsonify({"error": f"User {uuid} not found"}), 404

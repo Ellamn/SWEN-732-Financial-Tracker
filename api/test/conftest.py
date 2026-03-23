@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 import psycopg2.extras
@@ -12,4 +14,11 @@ def reset_database():
 
 @pytest.fixture(scope="function")
 def one_user():
-    db_utils.exec_commit("INSERT INTO users(username) VALUES('John Doe');")
+    user_id = db_utils.exec_commit_returning("INSERT INTO users(username) VALUES('John Doe') RETURNING id;")[0][0]
+    return user_id
+
+@pytest.fixture(scope="function")
+def one_balance(one_user):
+    john = one_user
+    balance_id = db_utils.exec_commit_returning("INSERT INTO balance_events(owner, name, amount, date) VALUES(%(john)s, 'Pizza', 20.00, %(date)s) RETURNING id", {"john":john,"date":datetime.datetime.now()})[0][0]
+    return balance_id
