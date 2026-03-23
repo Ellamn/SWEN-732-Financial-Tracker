@@ -1,50 +1,56 @@
-from uuid import UUID
-
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request, jsonify
+from uuid import uuid4
+from datetime import datetime
 from database.src import database as db
 from api.src.models import BalanceEvent
 
 balance_bp = Blueprint("balance",__name__,url_prefix="/balance")
 
 
-@balance_bp.route('/<balance_id>', methods=["GET"])
-def get_balance(balance_id: UUID):
+@balance_bp.route('/<event_id>', methods=["GET"])
+def get_balance(event_id):
     try:
-        balance = db.get_balance_event(balance_id)
-        return jsonify(balance.__dict__)
-    except:
-        return jsonify({"error": f"Balance event {balance_id} not found"}), 404
+        event = db.get_balance_event(event_id)
+        return jsonify({
+            "event_id": str(event.event_id),
+            "owner": str(event.owner),
+            "name": event.name,
+            "amount": event.amount,
+            "date": str(event.date)
+        }), 200
+    except Exception:
+        return jsonify({"error": "Balance event not found"}), 404
 
 
-@balance_bp.route('/<balance_id>', methods=["PUT"])
-def put_balance(balance_id: UUID):
-    """
-    :Query parameters: owner, name, amount, date
-    """
-    try:
-        # TODO
-        # db.update_balance(balance_id, **request.args)
-        return jsonify({"error": "Not implemented"}), 501
-    except:
-        return jsonify({"error": f"Balance event {balance_id} not found"}), 404
+@balance_bp.route('/<event_id>', methods=["PUT"])
+def put_balance(event_id):
+    return jsonify({"error": "Not implemented"}), 501
 
 
 @balance_bp.route('/', methods=["POST"])
 def post_balance():
-    """
-    :Body parameters: owner, name, amount, date
-    """
-    body = request.json
-    body['owner'] = UUID(body['owner'])
-    db.insert_balance_event(BalanceEvent(**body))
-    return {}, 204
+    if not request.json:
+        return jsonify({"error": "Missing request body"}), 400
+
+    required = ['owner', 'name', 'amount', 'date']
+    missing = [f for f in required if f not in request.json]
+    if missing:
+        return jsonify({"error": "Missing fields: " + ", ".join(missing)}), 400
+
+    event_id = uuid4()
+    event = BalanceEvent(
+        event_id=event_id, owner=request.json['owner'],
+        name=request.json['name'], amount=request.json['amount'],
+        date=datetime.strptime(request.json['date'], '%Y-%m-%d')
+    )
+    db.insert_balance_event(event)
+    return jsonify({
+        "event_id": str(event_id), "owner": request.json['owner'],
+        "name": request.json['name'], "amount": request.json['amount'],
+        "date": request.json['date']
+    }), 201
 
 
-@balance_bp.route('/<balance_id>', methods=["DELETE"])
-def delete_balance(balance_id: UUID):
-    try:
-        # TODO
-        # db.delete_balance(balance_id)
-        return jsonify({"error": "Not implemented"}), 501
-    except:
-        return jsonify({"error": f"Balance event {balance_id} not found"}), 404
+@balance_bp.route('/<event_id>', methods=["DELETE"])
+def delete_balance(event_id):
+    return jsonify({"error": "Not implemented"}), 501
