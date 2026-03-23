@@ -22,3 +22,9 @@ def one_balance(one_user):
     john = one_user
     balance_id = db_utils.exec_commit_returning("INSERT INTO balance_events(owner, name, amount, date) VALUES(%(john)s, 'Pizza', 20.00, %(date)s) RETURNING id", {"john":john,"date":datetime.datetime.now()})[0][0]
     return balance_id
+
+@pytest.fixture(scope="function")
+def one_expense(one_user):
+    john = one_user
+    expense_id = db_utils.exec_commit_returning("INSERT INTO expense_category(owner, name) VALUES(%(john)s, \'Food\') RETURNING id", {"john":john})[0][0]
+    return expense_id
