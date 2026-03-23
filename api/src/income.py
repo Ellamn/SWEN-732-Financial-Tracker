@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from flask import Blueprint, jsonify, request
 from database.src import database as db
 from api.src.models import IncomeSource
@@ -5,38 +7,44 @@ from api.src.models import IncomeSource
 income_bp = Blueprint("income",__name__,url_prefix="/income")
 
 
-@income_bp.route('/', methods=["GET"])
-def get_income():
+@income_bp.route('/<income_id>', methods=["GET"])
+def get_income(income_id: UUID):
+    try:
+        income = db.get_income_source(income_id)
+        return jsonify(income.__dict__)
+    except:
+        return jsonify({"error": f"Balance event {income_id} not found"}), 404
+
+
+@income_bp.route('/<income_id>', methods=["PUT"])
+def put_income(income_id: UUID):
     """
-    :Query params: 
+    :Query parameters: owner, name
     """
     try:
-        if request.args.get('uuid'):
-            return db.get_user_with_uuid(request.args.get('uuid')).__dict__
-        elif request.args.get('name'):
-            return db.get_user_with_name(request.args.get('name')).__dict__
-        else:
-            return jsonify({"error": "Bad request"}), 400
+        # TODO
+        # db.update_income(income_id, **request.args)
+        return jsonify({"error": "Not implemented"}), 501
     except:
-        return jsonify({"error": f"User {request.args.get('uuid') or request.args.get('name')} not found"}), 404
-
-
-@income_bp.route('/', methods=["PUT"])
-def put_income():
-    return {
-        'message':'Hello world!'
-    }
+        return jsonify({"error": f"Balance event {income_id} not found"}), 404
 
 
 @income_bp.route('/', methods=["POST"])
 def post_income():
-    return {
-        'message':'Hello world!'
-    }
+    """
+    :Body parameters: owner, name, is_recurring
+    """
+    body = request.json
+    body['owner'] = UUID(body['owner'])
+    db.insert_income_source(IncomeSource(**body))
+    return {}, 204
 
 
-@income_bp.route('/', methods=["DELETE"])
-def delete_income():
-    return {
-        'message':'Hello world!'
-    }
+@income_bp.route('/<income_id>', methods=["DELETE"])
+def delete_income(income_id: UUID):
+    try:
+        # TODO
+        # db.delete_income(income_id)
+        return jsonify({"error": "Not implemented"}), 501
+    except:
+        return jsonify({"error": f"Balance event {income_id} not found"}), 404
