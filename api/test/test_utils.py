@@ -25,7 +25,7 @@ def post_rest_call(url, json = {}, post_header = {}, params = {}, expected_code 
 
 def put_rest_call(url, json = {}, params = {}, put_header = {},expected_code = 200):
     '''Implements a REST api using the PUT verb'''
-    response = requests.put(url, json, params=params, headers = put_header)
+    response = requests.put(url, json=json, params=params, headers = put_header)
     assert expected_code == response.status_code, f'Response code to {url} not {expected_code}'
     return response.json()
 

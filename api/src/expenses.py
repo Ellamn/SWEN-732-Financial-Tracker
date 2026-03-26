@@ -53,6 +53,6 @@ def post_expenses():
 def delete_expenses(expense_id):
     try:
         db.delete_expense_category(expense_id)
-        return jsonify({"error": "Not implemented"}), 501
+        return jsonify({"message": "Deleted"}), 200
     except:
         return jsonify({"error": f"Balance event {expense_id} not found"}), 404

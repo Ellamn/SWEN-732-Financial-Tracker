@@ -47,10 +47,10 @@ def test_get_user_no_params():
 
 # PUT Tests / DELETE Tests ( NOT IMPLEMENTED YET )
 
-def test_put_balance():
-    result = put_rest_call(BASE)
-    assert result['message'] == 'Hello world!'
+def test_put_users(one_user):
+    result = put_rest_call(BASE + str(one_user), json={"name": "Jane Doe"}, expected_code=200)
+    assert result['message'] == 'Updated'
 
-def test_delete_users():
-    result = delete_rest_call(BASE)
-    assert result['message'] == 'Hello world!'
+def test_delete_users(one_user):
+    result = delete_rest_call(BASE + str(one_user), expected_code=200)
+    assert result['message'] == 'Deleted'

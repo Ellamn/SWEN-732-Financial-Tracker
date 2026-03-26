@@ -12,11 +12,8 @@ def test_get_expenses(one_expense):
 
 
 def test_put_expenses(one_expense):
-    new_expense = {
-        "name" : "Grocery"
-    }
-
-    put_rest_call(f"{BASE}{one_expense}", params=new_expense, expected_code=501)
+    result = put_rest_call(f"{BASE}{one_expense}", json={"name": "Grocery"}, expected_code=200)
+    assert result['message'] == 'Updated'
     
     # result, = db_utils.exec_get_one("SELECT name FROM expense_category")
 
@@ -37,7 +34,7 @@ def test_post_expenses(one_user):
 
 
 def test_delete_expenses(one_expense):
-    delete_rest_call(f"{BASE}{one_expense}", expected_code=501)
+    delete_rest_call(f"{BASE}{one_expense}", expected_code=200)
 
     # result = db_utils.exec_get_all("SELECT * FROM expense_category")
 

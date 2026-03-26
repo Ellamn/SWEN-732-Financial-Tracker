@@ -19,7 +19,8 @@ def test_put_goals(one_goal):
         "amount" : 20000
     }
 
-    put_rest_call(f"{BASE}{one_goal}",params=new_goal,expected_code=501)
+    result = put_rest_call(f"{BASE}{one_goal}", json=new_goal, expected_code=200)
+    assert result['message'] == 'Updated'
 
     # result = db_utils.exec_get_one("SELECT name, amount FROM budget_goals")
 
@@ -45,7 +46,7 @@ def test_post_goals(one_user):
 
 
 def test_delete_goals(one_goal):
-    delete_rest_call(f"{BASE}{one_goal}", expected_code=501)
+    delete_rest_call(f"{BASE}{one_goal}", expected_code=200)
 
     # result = db_utils.exec_get_all("SELECT * FROM income_sources")
 

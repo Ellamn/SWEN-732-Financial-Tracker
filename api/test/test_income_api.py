@@ -17,7 +17,8 @@ def test_put_income(one_income):
         "is_recurring" : False
     }
 
-    put_rest_call(f"{BASE}{one_income}",params=new_income,expected_code=501)
+    result = put_rest_call(f"{BASE}{one_income}",json=new_income,expected_code=200)
+    assert result['message'] == 'Updated'
 
     # result = db_utils.exec_get_one("SELECT name, is_recurring FROM income_sources")
 
@@ -41,7 +42,7 @@ def test_post_income(one_user):
 
 
 def test_delete_income(one_income):
-    delete_rest_call(f"{BASE}{one_income}", expected_code=501)
+    delete_rest_call(f"{BASE}{one_income}", expected_code=200)
 
     # result = db_utils.exec_get_all("SELECT * FROM income_sources")
 

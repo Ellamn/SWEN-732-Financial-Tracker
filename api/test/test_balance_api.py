@@ -56,10 +56,10 @@ def test_get_balance_not_found():
 
 # PUT Tests / DELETE Tests ( NOT IMPLEMENTED YET )
 
-def test_put_balance():
-    result = put_rest_call(BASE)
-    assert result['message'] == 'Hello world!'
+def test_put_balance(one_balance):
+    result = put_rest_call(BASE + str(one_balance), json={"name": "Updated", "amount": 999}, expected_code=200)
+    assert result['message'] == 'Updated'
 
-def test_delete_balance():
-    result = delete_rest_call(BASE)
-    assert result['message'] == 'Hello world!'
+def test_delete_balance(one_balance):
+    result = delete_rest_call(BASE + str(one_balance), expected_code=200)
+    assert result['message'] == 'Deleted'
