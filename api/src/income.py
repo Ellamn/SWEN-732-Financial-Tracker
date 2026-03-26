@@ -21,10 +21,16 @@ def put_income(income_id: UUID):
     """
     :Query parameters: owner, name
     """
+    if not request.json:
+        return jsonify({"error": "Missing request body"}), 400
+
     try:
-        # TODO
-        # db.update_income(income_id, **request.args)
-        return jsonify({"error": "Not implemented"}), 501
+        name = request.json.get('name')
+        is_recurring = request.json.get('is_recurring')
+        if name is None or is_recurring is None:
+            return jsonify({"error": "Missing 'name' or 'is_recurring' field"}), 400
+        db.update_income_source(income_id, name=name, is_recurring=is_recurring)
+        return jsonify({"message": "Updated"}), 200
     except:
         return jsonify({"error": f"Balance event {income_id} not found"}), 404
 
@@ -34,6 +40,13 @@ def post_income():
     """
     :Body parameters: owner, name, is_recurring
     """
+    if not request.json:
+        return jsonify({"error": "Missing request body"}), 400
+    required = ['owner', 'name', 'is_recurring']
+    missing = [f for f in required if f not in request.json]
+    if missing:
+        return jsonify({"error": "Missing fields: " + ", ".join(missing)}), 400
+
     body = request.json
     body['owner'] = UUID(body['owner'])
     db.insert_income_source(IncomeSource(**body))
@@ -44,7 +57,7 @@ def post_income():
 def delete_income(income_id: UUID):
     try:
         # TODO
-        # db.delete_income(income_id)
-        return jsonify({"error": "Not implemented"}), 501
+        db.delete_income_source(income_id)
+        return jsonify({"message": "DELETED"}), 200
     except:
         return jsonify({"error": f"Balance event {income_id} not found"}), 404
