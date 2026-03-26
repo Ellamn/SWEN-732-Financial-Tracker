@@ -24,7 +24,18 @@ def get_balance(event_id):
 
 @balance_bp.route('/<event_id>', methods=["PUT"])
 def put_balance(event_id):
-    return jsonify({"error": "Not implemented"}), 501
+    if not request.json:
+        return jsonify({"error": "Missing request body"}), 400
+
+    try:
+        name = request.json.get('name')
+        amount = request.json.get('amount')
+        if not name or amount is None:
+            return jsonify({"error": "Missing 'name' or 'amount' field"}), 400
+        db.update_balance_event(event_id, name, amount)
+        return jsonify({"message": "Updated"}), 200
+    except:
+        return jsonify({"error": "Balance event not found"}), 404
 
 
 @balance_bp.route('/', methods=["POST"])
@@ -53,4 +64,8 @@ def post_balance():
 
 @balance_bp.route('/<event_id>', methods=["DELETE"])
 def delete_balance(event_id):
-    return jsonify({"error": "Not implemented"}), 501
+    try:
+        db.delete_balance_event(event_id)
+        return jsonify({"message": "Deleted"}), 200
+    except:
+        return jsonify({"error": "Balance event not found"}), 404

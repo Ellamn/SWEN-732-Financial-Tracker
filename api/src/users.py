@@ -26,9 +26,16 @@ def get_users():
         return jsonify({"error": "Provide 'name' or 'id' query parameter"}), 400
 
 
-@users_bp.route('/', methods=["PUT"])
-def put_users():
-    return jsonify({"error": "Not implemented"}), 501
+@users_bp.route('/<user_id>', methods=["PUT"])
+def put_users(user_id):
+    if not request.json or 'name' not in request.json:
+        return jsonify({"error": "Missing 'name' field"}), 400
+
+    try:
+        db.update_user(user_id, request.json['name'])
+        return jsonify({"message": "Updated"}), 200
+    except:
+        return jsonify({"error": "User not found"}), 404
 
 
 @users_bp.route('/', methods=["POST"])
@@ -43,7 +50,11 @@ def post_users():
     }, 201
 
 
-@users_bp.route('/', methods=["DELETE"])
-def delete_users():
-    return jsonify({"error": "Not implemented"}), 501
+@users_bp.route('/<user_id>', methods=["DELETE"])
+def delete_users(user_id):
+    try:
+        db.delete_user(user_id)
+        return jsonify({"message": "Deleted"}), 200
+    except:
+        return jsonify({"error": "User not found"}), 404
 
