@@ -28,11 +28,11 @@ def get_users():
 
 @users_bp.route('/<user_id>', methods=["PUT"])
 def put_users(user_id):
-    if not request.json or 'name' not in request.json:
+    if not request.args or 'name' not in request.args:
         return jsonify({"error": "Missing 'name' field"}), 400
 
     try:
-        db.update_user(user_id, request.json['name'])
+        db.update_user(user_id, request.args['name'])
         return jsonify({"message": "Updated"}), 200
     except:
         return jsonify({"error": "User not found"}), 404

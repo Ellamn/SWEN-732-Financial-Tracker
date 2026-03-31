@@ -54,12 +54,42 @@ def test_get_balance_not_found():
     result = get_rest_call(BASE + fake_id, expected_code=404)
     assert 'error' in result
 
-# PUT Tests / DELETE Tests ( NOT IMPLEMENTED YET )
+# PUT Tests / DELETE Tests
 
-def test_put_balance():
-    result = put_rest_call(BASE)
-    assert result['message'] == 'Hello world!'
+def test_put_balance(one_balance):
+    new_balance = {
+        "name" : "Soda",
+        "amount" : 3.00
+    }
+    put_rest_call(BASE + str(one_balance),params=new_balance)
+    
+    result = db_utils.exec_get_one("SELECT name, amount FROM balance_events")
+    assert result[0] == "Soda" and result[1] == 3, "Failed to update"
 
-def test_delete_balance():
-    result = delete_rest_call(BASE)
-    assert result['message'] == 'Hello world!'
+    # Amount ValueError
+    new_balance["amount"] = "three dollars"
+    put_rest_call(BASE + str(one_balance), params=new_balance, expected_code=400)
+
+    new_balance = {
+        "name" : "Chips"
+    }
+    put_rest_call(BASE + str(one_balance), params=new_balance)
+
+    result = db_utils.exec_get_one("SELECT name, amount FROM balance_events")
+    assert result[0] == "Chips" and result[1] == 3, "Failed to update optionally"
+
+    new_balance = {
+        "amount" : 5
+    }
+    put_rest_call(BASE + str(one_balance), params=new_balance)
+
+    result = db_utils.exec_get_one("SELECT name, amount FROM balance_events")
+    assert result[0] == "Chips" and result[1] == 5, "Failed to update optionally"
+
+
+def test_delete_balance(one_balance):
+    delete_rest_call(BASE + str(one_balance))
+
+    result, = db_utils.exec_get_one("SELECT COUNT(*) FROM balance_events")
+
+    assert result == 0, "Failed to delete"

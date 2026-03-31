@@ -6,6 +6,9 @@ from api.src.models import IncomeSource
 
 income_bp = Blueprint("income",__name__,url_prefix="/income")
 
+truthy = ["true","t","y","yes","1","absolutamundo"]
+falsy = ["false","f","n","no","0","nowayjose"]
+
 
 @income_bp.route('/<income_id>', methods=["GET"])
 def get_income(income_id: UUID):
@@ -19,18 +22,25 @@ def get_income(income_id: UUID):
 @income_bp.route('/<income_id>', methods=["PUT"])
 def put_income(income_id: UUID):
     """
-    :Query parameters: owner, name
+    :Query parameters: name, is_recurring
     """
-    if not request.json:
-        return jsonify({"error": "Missing request body"}), 400
+    if not request.args:
+        return jsonify({"error": "Missing query parameters"}), 400
 
     try:
-        name = request.json.get('name')
-        is_recurring = request.json.get('is_recurring')
-        if name is None or is_recurring is None:
-            return jsonify({"error": "Missing 'name' or 'is_recurring' field"}), 400
+        name = request.args.get('name')
+        # bool parsing
+        if request.args.get('is_recurring') is not None:
+            is_recurring = request.args["is_recurring"].lower()
+            if is_recurring not in truthy and is_recurring not in falsy:
+                raise ValueError
+            is_recurring = is_recurring in truthy
+        else:
+            is_recurring = None
         db.update_income_source(income_id, name=name, is_recurring=is_recurring)
         return jsonify({"message": "Updated"}), 200
+    except ValueError:
+        return jsonify({"error": "Invalid is_recurring"}), 400
     except:
         return jsonify({"error": f"Balance event {income_id} not found"}), 404
 
@@ -56,7 +66,6 @@ def post_income():
 @income_bp.route('/<income_id>', methods=["DELETE"])
 def delete_income(income_id: UUID):
     try:
-        # TODO
         db.delete_income_source(income_id)
         return jsonify({"message": "DELETED"}), 200
     except:

@@ -16,37 +16,101 @@ def test_get_goals(one_goal):
 def test_put_goals(one_goal):
     new_goal = {
         "name" : "Mortgage",
-        "amount" : 20000
+        "amount" : 20000,
+        "achieve_by_date" : datetime.date(2025,5,12),
+        "started_on" : datetime.date(2024,1,4)
     }
 
-    put_rest_call(f"{BASE}{one_goal}",params=new_goal,expected_code=501)
+    put_rest_call(f"{BASE}{one_goal}",params=new_goal)
 
-    # result = db_utils.exec_get_one("SELECT name, amount FROM budget_goals")
+    result = db_utils.exec_get_one("SELECT name, amount, achieve_by_date, started_on FROM budget_goals")
 
-    # assert result[0] == new_income['name'], "Incorrect put"
-    # assert result[1] == new_income['amount'], "Incorrect put"
+    assert (
+        result[0] == new_goal['name'] and 
+        result[1] == new_goal['amount'] and 
+        result[2] == new_goal['achieve_by_date'] and 
+        result[3] == new_goal['started_on']
+    ), "Incorrect put"
+
+    # Amount ValueError
+    new_goal["amount"] = "three dollars"
+    put_rest_call(BASE + str(one_goal), params=new_goal, expected_code=400)
+
+    new_goal = {
+        "name" : "Motorbike"
+    }
+    put_rest_call(BASE + str(one_goal), params=new_goal)
+
+    result = db_utils.exec_get_one("SELECT name, amount FROM budget_goals")
+    assert (
+        result[0] == "Motorbike" and 
+        result[1] == 20000
+    ), "Failed to update optionally"
+
+    new_goal = {
+        "amount" : 30000
+    }
+    put_rest_call(BASE + str(one_goal), params=new_goal)
+
+    result = db_utils.exec_get_one("SELECT name, amount FROM budget_goals")
+    assert (
+        result[0] == "Motorbike" and 
+        result[1] == 30000
+    ), "Failed to update optionally"
+
+    new_goal = {
+        "achieve_by_date" : datetime.date.today() + datetime.timedelta(weeks=1)
+    }
+    put_rest_call(BASE + str(one_goal), params=new_goal)
+
+    result = db_utils.exec_get_one("SELECT name, amount, achieve_by_date FROM budget_goals")
+    assert (
+        result[0] == "Motorbike" and 
+        result[1] == 30000 and 
+        result[2] == new_goal["achieve_by_date"]
+    ), "Failed to update optionally"
+
+    new_goal = {
+        "started_on" : datetime.date.today() + datetime.timedelta(weeks=-1)
+    }
+    put_rest_call(BASE + str(one_goal), params=new_goal)
+
+    result = db_utils.exec_get_one("SELECT name, amount, started_on FROM budget_goals")
+    assert (
+        result[0] == "Motorbike" and 
+        result[1] == 30000 and 
+        result[2] == new_goal["started_on"]
+    ), "Failed to update optionally"
 
 
 def test_post_goals(one_user):
+    achieve_by = datetime.date.today() + datetime.timedelta(weeks=4)
+    started_on = datetime.date.today()
     new_goal = {
         "owner" : str(one_user),
         "name" : "Rent",
         "amount" : 1000,
-        "achieve_by_date" : str(datetime.datetime.now() + datetime.timedelta(weeks=4)),
-        "started_on" : str(datetime.datetime.now())
+        "achieve_by_date" : str(achieve_by),
+        "started_on" : str(started_on)
     }
 
     post_rest_call(BASE, new_goal, post_header={"Content-Type":"application/json"}, expected_code=204)
 
-    result = db_utils.exec_get_all("SELECT owner FROM budget_goals")
+    result = db_utils.exec_get_all("SELECT owner, name, amount, achieve_by_date, started_on FROM budget_goals")
 
     assert len(result) == 1, "Failed to post"
-    assert result[0][0] == one_user, "Incorrect post"
+    assert (
+        result[0][0] == one_user and 
+        result[0][1] == new_goal["name"] and 
+        result[0][2] == new_goal["amount"] and 
+        result[0][3] == achieve_by and 
+        result[0][4] == started_on
+    ), "Incorrect post"
 
 
 def test_delete_goals(one_goal):
-    delete_rest_call(f"{BASE}{one_goal}", expected_code=501)
+    delete_rest_call(f"{BASE}{one_goal}")
 
-    # result = db_utils.exec_get_all("SELECT * FROM income_sources")
+    result, = db_utils.exec_get_one("SELECT COUNT(*) FROM income_sources")
 
-    # assert len(result) == 0, "Failed to delete"
+    assert result == 0, "Failed to delete"

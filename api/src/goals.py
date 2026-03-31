@@ -19,18 +19,24 @@ def get_goals(goal_id: UUID):
 @goals_bp.route('/<goal_id>', methods=["PUT"])
 def put_goals(goal_id):
     """
-    :Query parameters: owner, name
+    :Query parameters: name, amount, achieve_by_date, started_on
     """
-    if not request.json:
-        return jsonify({"error": "Missing request body"}), 400
+    print(request.args)
+    if not request.args:
+        return jsonify({"error": "Missing query parameters"}), 400
 
     try:
-        name = request.json.get('name')
-        amount = request.json.get('amount')
-        if not name or not amount:
-            return jsonify({"error": "Missing 'name' or 'amount' field"}), 400
-        db.update_budget_goal(goal_id, name, amount)
+        name = request.args.get('name')
+        if request.args.get('amount') is not None:
+            amount = float(request.args["amount"])
+        else:
+            amount = None
+        achieve_by_date = request.args.get("achieve_by_date")
+        started_on = request.args.get("started_on")
+        db.update_budget_goal(goal_id, name, amount, achieve_by_date, started_on)
         return jsonify({"message": "Updated"}), 200
+    except ValueError:
+        return jsonify({"error": "Invalid amount"}), 400
     except:
         return jsonify({"error": f"Budget Goal {goal_id} not found"}), 404
 

@@ -13,14 +13,12 @@ def test_get_expenses(one_expense):
 
 def test_put_expenses(one_expense):
     new_expense = {
-        "name" : "Grocery"
+        "name" : "Drinks"
     }
-
-    put_rest_call(f"{BASE}{one_expense}", params=new_expense, expected_code=501)
+    put_rest_call(BASE + str(one_expense),params=new_expense)
     
-    # result, = db_utils.exec_get_one("SELECT name FROM expense_category")
-
-    # assert result[0] == "Grocery"
+    result = db_utils.exec_get_one("SELECT name FROM expense_category")
+    assert result[0] == "Drinks", "Failed to update"
 
 
 def test_post_expenses(one_user):
@@ -37,8 +35,8 @@ def test_post_expenses(one_user):
 
 
 def test_delete_expenses(one_expense):
-    delete_rest_call(f"{BASE}{one_expense}", expected_code=501)
+    delete_rest_call(f"{BASE}{one_expense}")
 
-    # result = db_utils.exec_get_all("SELECT * FROM expense_category")
+    result, = db_utils.exec_get_one("SELECT COUNT(*) FROM expense_category")
 
-    # assert len(result) == 0, "Failed to delete"
+    assert result == 0, "Failed to delete"

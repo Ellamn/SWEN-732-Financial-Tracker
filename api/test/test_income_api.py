@@ -17,12 +17,27 @@ def test_put_income(one_income):
         "is_recurring" : False
     }
 
-    put_rest_call(f"{BASE}{one_income}",params=new_income,expected_code=501)
+    put_rest_call(f"{BASE}{one_income}",params=new_income)
 
-    # result = db_utils.exec_get_one("SELECT name, is_recurring FROM income_sources")
+    result = db_utils.exec_get_one("SELECT name, is_recurring FROM income_sources")
 
-    # assert result[0] == new_income['name'], "Incorrect put"
-    # assert result[1] == new_income['is_recurring'], "Incorrect put"
+    assert result[0] == new_income['name'] and result[1] == new_income['is_recurring'], "Incorrect put"
+
+    new_income = {
+        "name" : "Charity"
+    }
+    put_rest_call(BASE + str(one_income), params=new_income)
+
+    result = db_utils.exec_get_one("SELECT name, is_recurring FROM income_sources")
+    assert result[0] == "Charity" and result[1] == False, "Failed to update optionally"
+
+    new_income = {
+        "is_recurring" : True
+    }
+    put_rest_call(BASE + str(one_income), params=new_income)
+
+    result = db_utils.exec_get_one("SELECT name, is_recurring FROM income_sources")
+    assert result[0] == "Charity" and result[1] == True, "Failed to update optionally"
 
 
 def test_post_income(one_user):
@@ -41,8 +56,8 @@ def test_post_income(one_user):
 
 
 def test_delete_income(one_income):
-    delete_rest_call(f"{BASE}{one_income}", expected_code=501)
+    delete_rest_call(f"{BASE}{one_income}")
 
-    # result = db_utils.exec_get_all("SELECT * FROM income_sources")
+    result, = db_utils.exec_get_one("SELECT COUNT(*) FROM income_sources")
 
-    # assert len(result) == 0, "Failed to delete"
+    assert result == 0, "Failed to delete"

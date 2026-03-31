@@ -45,12 +45,22 @@ def test_get_user_no_params():
     result = get_rest_call(BASE, expected_code=400)
     assert 'error' in result
 
-# PUT Tests / DELETE Tests ( NOT IMPLEMENTED YET )
+# PUT Tests / DELETE Tests
 
-def test_put_balance():
-    result = put_rest_call(BASE)
-    assert result['message'] == 'Hello world!'
+def test_put_users(one_user):
+    new_user = {
+        "name" : "Jane Doe"
+    }
+    put_rest_call(BASE + str(one_user), params=new_user)
+    
+    result = db_utils.exec_get_one("SELECT username FROM users")
 
-def test_delete_users():
-    result = delete_rest_call(BASE)
-    assert result['message'] == 'Hello world!'
+    assert result[0] == new_user["name"], "Failed to put"
+
+
+def test_delete_users(one_user):
+    result = delete_rest_call(BASE + str(one_user))
+    
+    result, = db_utils.exec_get_one("SELECT COUNT(*) FROM users")
+
+    assert result == 0

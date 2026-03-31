@@ -19,13 +19,13 @@ def get_expenses(expense_id: UUID):
 @expenses_bp.route('/<expense_id>', methods=["PUT"])
 def put_expenses(expense_id: UUID):
     """
-    :Query parameters: owner, name
+    :Query parameters: name
     """
-    if not request.json or 'name' not in request.json:
+    if not request.args or 'name' not in request.args:
         return jsonify({"error": "Missing 'name' field"}), 400
     
     try:
-        db.update_expense_category(expense_id, request.json['name'])
+        db.update_expense_category(expense_id, request.args['name'])
         return jsonify({"message": "Updated"}), 200
     except:
         return jsonify({"error": f"Expense category {expense_id} not found"}), 404
@@ -53,6 +53,6 @@ def post_expenses():
 def delete_expenses(expense_id):
     try:
         db.delete_expense_category(expense_id)
-        return jsonify({"error": "Not implemented"}), 501
+        return jsonify({"message": "Deleted"}), 200
     except:
-        return jsonify({"error": f"Balance event {expense_id} not found"}), 404
+        return jsonify({"error": f"Expense category {expense_id} not found"}), 404

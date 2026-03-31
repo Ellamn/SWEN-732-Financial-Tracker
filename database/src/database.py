@@ -1,5 +1,7 @@
 from uuid import UUID
 
+import datetime
+
 from database.src.models.balance_event import BalanceEvent
 from database.src.db_utils import exec_commit, exec_commit_returning, exec_get_one
 from database.src.models.budget_goal import BudgetGoal
@@ -51,7 +53,7 @@ def delete_user(id: UUID):
     exec_commit(sql, {"id": id})
 
 def update_user(id: UUID, name: str):
-    sql = "UPDATE users SET username = %(name)s WHERE id = %(id)s;"
+    sql = "UPDATE users SET username = COALESCE(%(name)s,username) WHERE id = %(id)s;"
     exec_commit(sql, {"id": id, "name": name})
 
 # MARK: Balance Events
@@ -77,7 +79,7 @@ def delete_balance_event(id: UUID):
     exec_commit(sql, {"id": id})
 
 def update_balance_event(id: UUID, name: str, amount: float):
-    sql = "UPDATE balance_events SET name = %(name)s, amount = %(amount)s WHERE id = %(id)s;"
+    sql = "UPDATE balance_events SET name = COALESCE(%(name)s,name), amount = COALESCE(%(amount)s,amount) WHERE id = %(id)s;"
     exec_commit(sql, {"id": id, "name": name, "amount": amount})
     
 # MARK: Budget Goal
@@ -102,9 +104,15 @@ def delete_budget_goal(id: UUID):
     sql = "DELETE FROM budget_goals WHERE id = %(id)s;"
     exec_commit(sql, {"id": id})
 
-def update_budget_goal(id: UUID, name: str, amount: float):
-    sql = "UPDATE budget_goals SET name = %(name)s, amount = %(amount)s WHERE id = %(id)s;"
-    exec_commit(sql, {"id": id, "name": name, "amount": amount})
+def update_budget_goal(id: UUID, name: str, amount: float, achieve_by_date: datetime.date = None, started_on: datetime.date = None):
+    sql = "UPDATE budget_goals SET name = COALESCE(%(name)s,name), amount = COALESCE(%(amount)s,amount), achieve_by_date = COALESCE(%(achieve_by_date)s, achieve_by_date), started_on = COALESCE(%(started_on)s, started_on) WHERE id = %(id)s;"
+    exec_commit(sql, {
+        "id": id, 
+        "name": name, 
+        "amount": amount, 
+        "achieve_by_date": achieve_by_date,
+        "started_on": started_on
+    })
 
 # MARK: Expense Categories
 def insert_expense_category(category: ExpenseCategory):
@@ -129,7 +137,7 @@ def delete_expense_category(id: UUID):
     exec_commit(sql, {"id": id})
 
 def update_expense_category(id: UUID, name: str):
-    sql = "UPDATE expense_category SET name = %(name)s WHERE id = %(id)s;"
+    sql = "UPDATE expense_category SET name = COALESCE(%(name)s,name) WHERE id = %(id)s;"
     exec_commit(sql, {"id": id, "name": name})
 
 # MARK: Income Sources
@@ -156,5 +164,5 @@ def delete_income_source(id: UUID):
     exec_commit(sql, {"id": id})
 
 def update_income_source(id: UUID, name: str, is_recurring: bool):
-    sql = "UPDATE income_sources SET name = %(name)s, is_recurring = %(is_recurring)s WHERE id = %(id)s;"
+    sql = "UPDATE income_sources SET name = COALESCE(%(name)s,name), is_recurring = COALESCE(%(is_recurring)s,is_recurring) WHERE id = %(id)s;"
     exec_commit(sql, {"id": id, "name": name, "is_recurring": is_recurring})
