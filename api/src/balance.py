@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from uuid import uuid4
+from uuid import UUID, uuid4
 from datetime import datetime
 from database.src import database as db
 from api.src.models import BalanceEvent
@@ -8,7 +8,13 @@ balance_bp = Blueprint("balance",__name__,url_prefix="/balance")
 
 
 @balance_bp.route('/<event_id>', methods=["GET"])
-def get_balance(event_id):
+def get_balance(event_id: UUID):
+    """
+    Returns a balance event object from its id
+
+    Args:
+        event_id (UUID): the event id
+    """
     try:
         event = db.get_balance_event(event_id)
         return jsonify({
@@ -23,7 +29,17 @@ def get_balance(event_id):
 
 
 @balance_bp.route('/<event_id>', methods=["PUT"])
-def put_balance(event_id):
+def put_balance(event_id: UUID):
+    """
+    Updates a balance event
+
+    Args:
+        event_id (UUID): the event id
+
+    ## Query parameters:
+        name (str): the event name
+        amount (float): the event amount
+    """
     if not request.args:
         return jsonify({"error": "Missing query parameters"}), 400
 
@@ -43,6 +59,15 @@ def put_balance(event_id):
 
 @balance_bp.route('/', methods=["POST"])
 def post_balance():
+    """
+    Creates a new balance event
+
+    ## Body parameters:
+        owner (UUID): the event owner
+        name (str): the event name
+        amount (float): the event amount
+        date (str): the event date (in ISO)
+    """
     if not request.json:
         return jsonify({"error": "Missing request body"}), 400
 
@@ -66,7 +91,13 @@ def post_balance():
 
 
 @balance_bp.route('/<event_id>', methods=["DELETE"])
-def delete_balance(event_id):
+def delete_balance(event_id: UUID):
+    """
+    Deletes a balance event
+
+    Args:
+        event_id (UUID): the event id
+    """
     try:
         db.delete_balance_event(event_id)
         return jsonify({"message": "Deleted"}), 200

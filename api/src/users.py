@@ -7,6 +7,13 @@ users_bp = Blueprint("users",__name__,url_prefix="/users")
 
 @users_bp.route('/', methods=["GET"])
 def get_users():
+    """
+    Returns a user object from either their name or id
+    
+    ## Query parameters:
+        name (str): the username of the user
+        id (UUID) the id of the user
+    """
     name = request.args.get('name')
     user_id = request.args.get('id')
 
@@ -28,6 +35,15 @@ def get_users():
 
 @users_bp.route('/<user_id>', methods=["PUT"])
 def put_users(user_id):
+    """
+    Updates a user
+
+    Args:
+        user_id (UUID): the user id
+        
+    ## Query parameters:
+        name (str): the new username
+    """
     if not request.args or 'name' not in request.args:
         return jsonify({"error": "Missing 'name' field"}), 400
 
@@ -40,6 +56,12 @@ def put_users(user_id):
 
 @users_bp.route('/', methods=["POST"])
 def post_users():
+    """
+    Creates a new user
+
+    ## Query parameters:
+        name (str): the username
+    """
     if not request.json or 'name' not in request.json:
         return jsonify({"error": "Missing 'name' field"}), 400
 
@@ -52,6 +74,12 @@ def post_users():
 
 @users_bp.route('/<user_id>', methods=["DELETE"])
 def delete_users(user_id):
+    """
+    Deletes a user
+    
+    Args:
+        user_id (UUID): the user id
+    """
     try:
         db.delete_user(user_id)
         return jsonify({"message": "Deleted"}), 200

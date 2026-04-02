@@ -8,15 +8,15 @@ BASE = 'http://127.0.0.1:5000/users/'
 def test_post_users():
     result = post_rest_call(BASE, json={'name' : 'John Doe'}, expected_code=201)
     assert result['name'] == 'John Doe'
-    assert 'id' in result
+    assert 'id' in result, "Did not return user id"
 
 def test_create_user_missing_name():
     result = post_rest_call(BASE, json={}, expected_code=400)
-    assert 'error' in result
+    assert 'error' in result, "Did not return an error message"
 
 def test_create_user_no_body():
     result = post_rest_call(BASE, expected_code=400)
-    assert 'error' in result
+    assert 'error' in result, "Did not return an error message"
 
 # GET Tests
 
@@ -26,24 +26,29 @@ def test_create_user_no_body():
 def test_get_user_by_name():
     created = post_rest_call(BASE, json={"name": "John Doe"}, expected_code=201)
     result = get_rest_call(BASE, params={"name": "John Doe"})
-    assert result['name'] == 'John Doe'
-    assert result['id'] == created['id']
+    assert (
+        result['name'] == 'John Doe' and 
+        result['id'] == created['id']
+    ), "Failed to get"
 
 
 def test_get_user_by_id():
     created = post_rest_call(BASE, json={"name": "John Doe"}, expected_code=201)
     result = get_rest_call(BASE, params={"id": created['id']})
-    assert result['name'] == 'John Doe'
+
+    assert result['name'] == 'John Doe', "Failed to get"
 
 
 def test_get_user_not_found():
     result = get_rest_call(BASE, params={"name": "nonexistent user"}, expected_code=404)
-    assert 'error' in result
+    
+    assert 'error' in result, "Did not return an error message"
 
 
 def test_get_user_no_params():
     result = get_rest_call(BASE, expected_code=400)
-    assert 'error' in result
+    
+    assert 'error' in result, "Did not return an error message"
 
 # PUT Tests / DELETE Tests
 
@@ -63,4 +68,4 @@ def test_delete_users(one_user):
     
     result, = db_utils.exec_get_one("SELECT COUNT(*) FROM users")
 
-    assert result == 0
+    assert result == 0, "Failed to delete"

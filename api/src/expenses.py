@@ -9,6 +9,12 @@ expenses_bp = Blueprint("expenses",__name__,url_prefix="/expenses")
 
 @expenses_bp.route('/<expense_id>', methods=["GET"])
 def get_expenses(expense_id: UUID):
+    """
+    Returns an expense category object from its id
+
+    Args:
+        expense_id (UUID): the category id
+    """
     try:
         expense = db.get_expense_category(expense_id)
         return jsonify(expense.__dict__)
@@ -19,7 +25,13 @@ def get_expenses(expense_id: UUID):
 @expenses_bp.route('/<expense_id>', methods=["PUT"])
 def put_expenses(expense_id: UUID):
     """
-    :Query parameters: name
+    Updates an expense category
+
+    Args:
+        expense_id (UUID): the category id
+
+    ## Query parameters:
+        name (str): the category name
     """
     if not request.args or 'name' not in request.args:
         return jsonify({"error": "Missing 'name' field"}), 400
@@ -34,7 +46,11 @@ def put_expenses(expense_id: UUID):
 @expenses_bp.route('/', methods=["POST"])
 def post_expenses():
     """
-    :Body parameters: owner, name
+    Creates a new expense category
+
+    ## Body parameters: 
+        owner (UUID): the category owner
+        name (str): the category name
     """
     if not request.json:
         return jsonify({"error": "Missing request body"}), 400
@@ -51,6 +67,12 @@ def post_expenses():
 
 @expenses_bp.route('/<expense_id>', methods=["DELETE"])
 def delete_expenses(expense_id):
+    """
+    Deletes an expense category
+
+    Args:
+        expense_id (UUID): the category id
+    """
     try:
         db.delete_expense_category(expense_id)
         return jsonify({"message": "Deleted"}), 200

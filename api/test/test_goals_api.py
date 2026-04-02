@@ -32,10 +32,17 @@ def test_put_goals(one_goal):
         result[3] == new_goal['started_on']
     ), "Incorrect put"
 
+
+def test_put_goals_value_error(one_goal):
     # Amount ValueError
-    new_goal["amount"] = "three dollars"
+    new_goal = {
+        "amount" : "three dollars"
+    }
     put_rest_call(BASE + str(one_goal), params=new_goal, expected_code=400)
 
+
+def test_put_goals_optional_name(one_goal):
+    # Name only
     new_goal = {
         "name" : "Motorbike"
     }
@@ -44,9 +51,12 @@ def test_put_goals(one_goal):
     result = db_utils.exec_get_one("SELECT name, amount FROM budget_goals")
     assert (
         result[0] == "Motorbike" and 
-        result[1] == 20000
-    ), "Failed to update optionally"
+        result[1] == 25000
+    ), "Failed to update name optionally"
 
+
+def test_put_goals_optional_amount(one_goal):
+    # Amount only
     new_goal = {
         "amount" : 30000
     }
@@ -54,10 +64,13 @@ def test_put_goals(one_goal):
 
     result = db_utils.exec_get_one("SELECT name, amount FROM budget_goals")
     assert (
-        result[0] == "Motorbike" and 
+        result[0] == "New car" and 
         result[1] == 30000
-    ), "Failed to update optionally"
+    ), "Failed to update amount optionally"
 
+
+def test_put_goals_optional_achieveby(one_goal):
+    # Achieve by date only
     new_goal = {
         "achieve_by_date" : datetime.date.today() + datetime.timedelta(weeks=1)
     }
@@ -65,11 +78,14 @@ def test_put_goals(one_goal):
 
     result = db_utils.exec_get_one("SELECT name, amount, achieve_by_date FROM budget_goals")
     assert (
-        result[0] == "Motorbike" and 
-        result[1] == 30000 and 
+        result[0] == "New car" and 
+        result[1] == 25000 and 
         result[2] == new_goal["achieve_by_date"]
-    ), "Failed to update optionally"
+    ), "Failed to update achieve by date optionally"
 
+
+def test_put_goals_optional_startedon(one_goal):
+    # Started on only
     new_goal = {
         "started_on" : datetime.date.today() + datetime.timedelta(weeks=-1)
     }
@@ -77,10 +93,10 @@ def test_put_goals(one_goal):
 
     result = db_utils.exec_get_one("SELECT name, amount, started_on FROM budget_goals")
     assert (
-        result[0] == "Motorbike" and 
-        result[1] == 30000 and 
+        result[0] == "New car" and 
+        result[1] == 25000 and 
         result[2] == new_goal["started_on"]
-    ), "Failed to update optionally"
+    ), "Failed to update started on date optionally"
 
 
 def test_post_goals(one_user):

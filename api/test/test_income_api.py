@@ -23,21 +23,27 @@ def test_put_income(one_income):
 
     assert result[0] == new_income['name'] and result[1] == new_income['is_recurring'], "Incorrect put"
 
+
+def test_put_income_optional_name(one_income):
+    # Name only
     new_income = {
         "name" : "Charity"
     }
     put_rest_call(BASE + str(one_income), params=new_income)
 
     result = db_utils.exec_get_one("SELECT name, is_recurring FROM income_sources")
-    assert result[0] == "Charity" and result[1] == False, "Failed to update optionally"
+    assert result[0] == "Charity" and result[1] == True, "Failed to update name optionally"
 
+
+def test_put_income_optional_recurring(one_income):
+    # Is recurring only
     new_income = {
         "is_recurring" : True
     }
     put_rest_call(BASE + str(one_income), params=new_income)
 
     result = db_utils.exec_get_one("SELECT name, is_recurring FROM income_sources")
-    assert result[0] == "Charity" and result[1] == True, "Failed to update optionally"
+    assert result[0] == "Job" and result[1] == True, "Failed to update is recurring optionally"
 
 
 def test_post_income(one_user):

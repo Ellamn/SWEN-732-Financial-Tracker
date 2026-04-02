@@ -79,7 +79,12 @@ def delete_balance_event(id: UUID):
     exec_commit(sql, {"id": id})
 
 def update_balance_event(id: UUID, name: str, amount: float):
-    sql = "UPDATE balance_events SET name = COALESCE(%(name)s,name), amount = COALESCE(%(amount)s,amount) WHERE id = %(id)s;"
+    sql = """
+        UPDATE balance_events SET 
+            name = COALESCE(%(name)s,name), 
+            amount = COALESCE(%(amount)s,amount) 
+        WHERE id = %(id)s;
+        """
     exec_commit(sql, {"id": id, "name": name, "amount": amount})
     
 # MARK: Budget Goal
@@ -105,7 +110,14 @@ def delete_budget_goal(id: UUID):
     exec_commit(sql, {"id": id})
 
 def update_budget_goal(id: UUID, name: str, amount: float, achieve_by_date: datetime.date = None, started_on: datetime.date = None):
-    sql = "UPDATE budget_goals SET name = COALESCE(%(name)s,name), amount = COALESCE(%(amount)s,amount), achieve_by_date = COALESCE(%(achieve_by_date)s, achieve_by_date), started_on = COALESCE(%(started_on)s, started_on) WHERE id = %(id)s;"
+    sql = """
+        UPDATE budget_goals SET 
+            name = COALESCE(%(name)s,name), 
+            amount = COALESCE(%(amount)s,amount), 
+            achieve_by_date = COALESCE(%(achieve_by_date)s, achieve_by_date), 
+            started_on = COALESCE(%(started_on)s, started_on) 
+        WHERE id = %(id)s;
+        """
     exec_commit(sql, {
         "id": id, 
         "name": name, 
@@ -164,5 +176,10 @@ def delete_income_source(id: UUID):
     exec_commit(sql, {"id": id})
 
 def update_income_source(id: UUID, name: str, is_recurring: bool):
-    sql = "UPDATE income_sources SET name = COALESCE(%(name)s,name), is_recurring = COALESCE(%(is_recurring)s,is_recurring) WHERE id = %(id)s;"
+    sql = """
+        UPDATE income_sources SET 
+            name = COALESCE(%(name)s,name), 
+            is_recurring = COALESCE(%(is_recurring)s,is_recurring) 
+        WHERE id = %(id)s;
+    """
     exec_commit(sql, {"id": id, "name": name, "is_recurring": is_recurring})

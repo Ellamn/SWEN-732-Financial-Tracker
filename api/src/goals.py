@@ -9,6 +9,12 @@ goals_bp = Blueprint("goals",__name__,url_prefix="/goals")
 
 @goals_bp.route('/<goal_id>', methods=["GET"])
 def get_goals(goal_id: UUID):
+    """
+    Returns a budget goal object from its id
+
+    Args:
+        goal_id (UUID): the goal id
+    """
     try:
         goal = db.get_budget_goal(goal_id)
         return jsonify(goal.__dict__)
@@ -17,11 +23,19 @@ def get_goals(goal_id: UUID):
 
 
 @goals_bp.route('/<goal_id>', methods=["PUT"])
-def put_goals(goal_id):
+def put_goals(goal_id: UUID):
     """
-    :Query parameters: name, amount, achieve_by_date, started_on
+    Updates a budget goal
+
+    Args: 
+        goal_id (UUID): the goal id
+
+    ## Query parameters: 
+        name (str): the goal name
+        amount (float): the goal amount
+        achieve_by_date (str): the goal achieve by date (in ISO)
+        started_on (str): the goal start date (in ISO)
     """
-    print(request.args)
     if not request.args:
         return jsonify({"error": "Missing query parameters"}), 400
 
@@ -44,7 +58,14 @@ def put_goals(goal_id):
 @goals_bp.route('/', methods=["POST"])
 def post_goals():
     """
-    :Body parameters: owner, name, amount, achieve_by_date, started_on
+    Creates a new budget goal
+
+    ## Body parameters: 
+        owner (UUID): the budget owner 
+        name (str): the goal name
+        amount (float): the goal amount
+        achieve_by_date (str): the goal achieve by date (in ISO)
+        started_on (str): the goal start date (in ISO)
     """
     if not request.json:
         return jsonify({"error": "Missing request body"}), 400
@@ -61,7 +82,13 @@ def post_goals():
 
 
 @goals_bp.route('/<goal_id>', methods=["DELETE"])
-def delete_goals(goal_id):
+def delete_goals(goal_id: UUID):
+    """
+    Deletes a budget goal
+
+    Args:
+        goal_id (UUID): the goal id
+    """
     try:
         db.delete_budget_goal(goal_id)
         return jsonify({"message": "DELETED"}), 200

@@ -12,6 +12,12 @@ falsy = ["false","f","n","no","0","nowayjose"]
 
 @income_bp.route('/<income_id>', methods=["GET"])
 def get_income(income_id: UUID):
+    """
+    Returns an income source object from its id
+
+    Args:
+        income_id (UUID): the source id
+    """
     try:
         income = db.get_income_source(income_id)
         return jsonify(income.__dict__)
@@ -22,7 +28,14 @@ def get_income(income_id: UUID):
 @income_bp.route('/<income_id>', methods=["PUT"])
 def put_income(income_id: UUID):
     """
-    :Query parameters: name, is_recurring
+    Updates an income source
+
+    Args:
+        income_id (UUID): the source id
+    
+    ## Query parameters: 
+        name (str): the source name
+        is_recurring (bool): whether the source is recurring
     """
     if not request.args:
         return jsonify({"error": "Missing query parameters"}), 400
@@ -48,7 +61,12 @@ def put_income(income_id: UUID):
 @income_bp.route('/', methods=["POST"])
 def post_income():
     """
-    :Body parameters: owner, name, is_recurring
+    Creates a new income source
+
+    ## Body parameters:
+        owner (UUID): the source owner
+        name (str): the source name
+        is_recurring (bool): whether the source is recurring
     """
     if not request.json:
         return jsonify({"error": "Missing request body"}), 400
@@ -65,6 +83,12 @@ def post_income():
 
 @income_bp.route('/<income_id>', methods=["DELETE"])
 def delete_income(income_id: UUID):
+    """
+    Deletes an income source
+
+    Args:
+        income_id (UUID): the source id
+    """
     try:
         db.delete_income_source(income_id)
         return jsonify({"message": "DELETED"}), 200
