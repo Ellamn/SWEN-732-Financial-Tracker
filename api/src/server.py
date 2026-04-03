@@ -29,8 +29,8 @@ def hello_world():
 
 
 if __name__ == "__main__":
-    # python api/src/server.py [--debug]
-    # or just use [python -m] flask --app api/src/server.py run [--debug]
+    # python[3] -m flask --app api/src/server.py run [--debug]
+    # python3 -m flask --app api/src/server.py run --debug
     if len(sys.argv) > 1:
         debug = sys.argv[1] == "--debug"
     else:

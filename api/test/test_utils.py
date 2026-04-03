@@ -19,13 +19,13 @@ def post_rest_call(url, json = {}, post_header = {}, params = {}, expected_code 
     '''Implements a REST api using the POST verb'''
     response = requests.post(url, params, json, headers = post_header)
     assert expected_code == response.status_code, f'Response code to {url} not {expected_code}'
-    return response.json()
+    return response.json() if expected_code != 204 else None
 
 # For API calls using PUT.  params and header are defaulted to 'empty'
 
-def put_rest_call(url, params = {}, put_header = {},expected_code = 200):
+def put_rest_call(url, json = {}, params = {}, put_header = {},expected_code = 200):
     '''Implements a REST api using the PUT verb'''
-    response = requests.put(url, params, headers = put_header)
+    response = requests.put(url, json, params=params, headers = put_header)
     assert expected_code == response.status_code, f'Response code to {url} not {expected_code}'
     return response.json()
 
