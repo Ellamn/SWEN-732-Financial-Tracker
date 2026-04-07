@@ -1,18 +1,24 @@
-import trackerLogo from '/dollar-svgrepo-com.svg'
-import './App.css'
+import { useState } from "react";
+import Dashboard from "./pages/Dashboard";
+import Budget from "./pages/Budget";
+import Goals from "./pages/Goals";
+import Transactions from "./pages/Transactions";
+import Savings from "./pages/Savings";
+import Sidebar from "./components/Sidebar";
+import "./App.css";
 
-function App() {
+export default function App() {
+  const [activePage, setActivePage] = useState("dashboard");
+
+  const pages = { dashboard: Dashboard, budget: Budget, goals: Goals, transactions: Transactions, savings: Savings };
+  const ActivePage = pages[activePage];
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={trackerLogo} className="logo" alt="tracker logo" />
-        </a>
-      </div>
-      <h1>Financial Tracker</h1>
-    </>
-  )
+    <div className="app-shell">
+      <Sidebar activePage={activePage} setActivePage={setActivePage} />
+      <main className="main-content">
+        <ActivePage />
+      </main>
+    </div>
+  );
 }
-
-export default App

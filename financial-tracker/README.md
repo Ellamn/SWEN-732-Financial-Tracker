@@ -1,16 +1,70 @@
-# React + Vite
+# FinancialTracker — Student Finance App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A financial budgeting and tracking web app built for college students.
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. Install dependencies:
+```bash
+npm install recharts
+```
+> All other dependencies (React, etc.) should already be in your blank React app.
 
-## React Compiler
+2. Copy the `src/` files from this package into your project's `src/` directory.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+3. Run the app:
+```bash
+npm start
+```
 
-## Expanding the ESLint configuration
+## File Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+src/
+├── App.jsx              # Main app shell with routing
+├── App.css              # Global design system styles
+├── components/
+│   ├── Sidebar.jsx      # Navigation sidebar
+│   └── Sidebar.css
+├── data/
+│   └── fakeData.js      # Fake data (replace with Flask API calls)
+└── pages/
+    ├── Dashboard.jsx    # Main overview: balance, charts, rollover
+    ├── Transactions.jsx # Transaction log with add/filter/delete
+    ├── Budget.jsx       # Paycheck splitter + budget limits
+    ├── Goals.jsx        # Savings goals with progress tracking
+    └── Savings.jsx      # Future savings projections
+```
+
+## Features Implemented
+
+| User Story | Feature |
+|---|---|
+| #1 | Bank balance input with inline editing |
+| #2 | Pie charts for spending categories and income sources |
+| #3 | Paycheck splitter with category percentages |
+| #4 | Date range filter (week/month/year) on dashboard |
+| #5 | Savings goals with progress bars and quick-add buttons |
+| #6 | Savings plan projector with interest rate and goal timeline |
+| #7 | Over-budget alerts on dashboard and budget page |
+| #8 | Monthly rollover bar chart and cumulative table |
+| #9 | Income categorization (job, aid, freelance, etc.) |
+| #10 | Expense categorization with tags and filters |
+| #11 | Clean, minimal dark-mode UI designed for students |
+
+## Connecting to Flask API
+
+Replace the imports from `../data/fakeData.js` with `fetch()` calls to your Flask endpoints. For example:
+
+```js
+// Instead of:
+import { transactions } from "../data/fakeData";
+
+// Use:
+const [transactions, setTransactions] = useState([]);
+useEffect(() => {
+  fetch("http://localhost:5000/api/transactions")
+    .then(r => r.json())
+    .then(setTransactions);
+}, []);
+```
