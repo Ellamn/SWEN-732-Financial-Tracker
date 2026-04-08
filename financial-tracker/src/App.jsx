@@ -5,12 +5,14 @@ import Goals from "./pages/Goals";
 import Transactions from "./pages/Transactions";
 import Savings from "./pages/Savings";
 import Sidebar from "./components/Sidebar";
+import { UserProvider } from "./context/UserContext";
 import "./App.css";
 
-export default function App() {
+function AppShell() {
   const [activePage, setActivePage] = useState("dashboard");
 
   const pages = { dashboard: Dashboard, budget: Budget, goals: Goals, transactions: Transactions, savings: Savings };
+
   const ActivePage = pages[activePage];
 
   return (
@@ -20,5 +22,13 @@ export default function App() {
         <ActivePage />
       </main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <UserProvider>
+      <AppShell />
+    </UserProvider>
   );
 }

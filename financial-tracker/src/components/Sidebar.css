@@ -36,7 +36,6 @@
 }
 
 .brand-name {
-  /* font-family: 'Syne', sans-serif; */
   font-weight: 800;
   font-size: 18px;
   line-height: 1.5;
@@ -133,4 +132,46 @@
   font-weight: 500;
   color: #7c52c8;
   letter-spacing: -0.02em;
+}
+
+.sidebar-user-row {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(151,117,210,0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-username {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a3e78;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(151,117,210,0.35);
+  background: rgba(255,255,255,0.3);
+  color: #6b4e88;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.sidebar-logout:hover {
+  background: rgba(255,255,255,0.6);
+  border-color: rgba(124,82,200,0.5);
+  color: #2d1f4e;
 }

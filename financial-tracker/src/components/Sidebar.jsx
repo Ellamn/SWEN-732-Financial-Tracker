@@ -1,25 +1,41 @@
 import "./Sidebar.css";
+import { useState, useEffect } from "react";
+import { useUser } from "../context/UserContext";
 
-/* svgs for the icons */
-import dashboardIcon from "../assets/dashboard.svg"; 
-import transactionsIcon from "../assets/transactions.svg"; 
+import dashboardIcon from "../assets/dashboard.svg";
+import transactionsIcon from "../assets/transactions.svg";
 import budgetIcon from "../assets/budget.svg";
-import goalsIcon from "../assets/goals.svg"; 
-import savingsIcon from "../assets/savings.svg"
+import goalsIcon from "../assets/goals.svg";
+import savingsIcon from "../assets/savings.svg";
 import brandIcon from "../assets/brand.svg";
 
 const NAV = [
-  { id: "dashboard", icon: dashboardIcon, label: "Dashboard" },
-  { id: "transactions", icon: transactionsIcon, label: "Transactions" },
-  { id: "budget", icon: budgetIcon, label: "Budget" },
-  { id: "goals", icon: goalsIcon, label: "Goals" },
-  { id: "savings", icon: savingsIcon, label: "Savings Plan" },
+  {id:"dashboard", icon: dashboardIcon, label: "Dashboard"},
+  {id:"transactions", icon: transactionsIcon, label: "Transactions" },
+  {id:"budget", icon: budgetIcon, label: "Budget"},
+  {id:"goals", icon: goalsIcon, label: "Goals"},
+  {id:"savings", icon: savingsIcon, label: "Savings Plan"},
 ];
 
 export default function Sidebar({ activePage, setActivePage }) {
+  const { userId, username, logout } = useUser();
+
+  // read the balance from localStorage, updated by Dashboard.jsx when user edits it
+  const [balance, setBalance] = useState(0);
+  useEffect(() => {
+    const stored = parseFloat(localStorage.getItem(`balance_${userId}`) || "0");
+    setBalance(stored);
+    // poll for changes every 2 seconds for cross-component sync 
+    const interval = setInterval(() => {
+      const latest = parseFloat(localStorage.getItem(`balance_${userId}`) || "0");
+      setBalance(latest);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [userId]);
+
   return (
     <aside className="sidebar">
-      {/* the FinTrack header for the sidebar */}
+      {/* FinTrack header */}
       <div className="sidebar-brand">
         <div className="brand-icon">
           <img src={brandIcon} alt="FinTrack logo" />
@@ -30,7 +46,7 @@ export default function Sidebar({ activePage, setActivePage }) {
         </div>
       </div>
 
-      {/* creates all the links to the different pages in the sidebar */}
+      {/* nav links */}
       <nav className="sidebar-nav">
         {NAV.map((item) => (
           <button
@@ -38,19 +54,23 @@ export default function Sidebar({ activePage, setActivePage }) {
             className={`nav-item ${activePage === item.id ? "active" : ""}`}
             onClick={() => setActivePage(item.id)}
           >
-            <img src={item.icon} alt={item.label} className="nav-icon"/>
+            <img src={item.icon} alt={item.label} className="nav-icon" />
             <span className="nav-label">{item.label}</span>
-            {activePage === item.id}
           </button>
         ))}
       </nav>
 
-      {/* small box at the bottom of the sidebar showing current account balance */}
-      {/* TODO: balance amount cannot be hardcoded lol */}
+      {/* footer: balance and user and logout */}
       <div className="sidebar-footer">
         <div className="balance-widget">
           <div className="balance-label">Account Balance</div>
-          <div className="balance-amount mono">$2,847.50</div>
+          <div className="balance-amount mono">
+            ${balance.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          </div>
+        </div>
+        <div className="sidebar-user-row">
+          <span className="sidebar-username">{username}</span>
+          <button className="sidebar-logout" onClick={logout}>Log out</button>
         </div>
       </div>
     </aside>
