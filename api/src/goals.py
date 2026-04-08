@@ -19,12 +19,12 @@ def get_goals_by_owner(owner_id: UUID):
     try:
         goals = db.get_budget_goals_by_owner(owner_id)
         return jsonify([{
-            "goal_id":         str(g.goal_id),
-            "owner":           str(g.owner),
-            "name":            g.name,
-            "amount":          g.amount,
+            "goal_id": str(g.goal_id),
+            "owner": str(g.owner),
+            "name": g.name,
+            "amount": g.amount,
             "achieve_by_date": str(g.achieve_by_date),
-            "started_on":      str(g.started_on)
+            "started_on": str(g.started_on)
         } for g in goals]), 200
     except Exception:
         return jsonify({"error": "Could not fetch budget goals"}), 500
@@ -110,12 +110,12 @@ def post_goals():
     )
     db.insert_budget_goal(goal)
     return jsonify({
-        "goal_id":         str(goal_id),
-        "owner":           body['owner'],
-        "name":            body['name'],
-        "amount":          body['amount'],
+        "goal_id": str(goal_id),
+        "owner": body['owner'],
+        "name": body['name'],
+        "amount": body['amount'],
         "achieve_by_date": body['achieve_by_date'],
-        "started_on":      body['started_on']
+        "started_on": body['started_on']
     }), 201
 
 

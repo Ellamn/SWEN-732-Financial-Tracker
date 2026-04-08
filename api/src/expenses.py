@@ -20,8 +20,8 @@ def get_expenses_by_owner(owner_id: UUID):
         categories = db.get_expense_categories_by_owner(owner_id)
         return jsonify([{
             "category_id": str(c.category_id),
-            "owner":       str(c.owner),
-            "name":        c.name
+            "owner": str(c.owner),
+            "name": c.name
         } for c in categories]), 200
     except Exception:
         return jsonify({"error": "Could not fetch expense categories"}), 500
@@ -89,8 +89,8 @@ def post_expenses():
     db.insert_expense_category(category)
     return jsonify({
         "category_id": str(category_id),
-        "owner":       str(owner),
-        "name":        body['name']
+        "owner": str(owner),
+        "name": body['name']
     }), 201
 
 

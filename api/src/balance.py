@@ -20,10 +20,10 @@ def get_balances_by_owner(owner_id: UUID):
         events = db.get_balance_events_by_owner(owner_id)
         return jsonify([{
             "event_id": str(e.event_id),
-            "owner":    str(e.owner),
-            "name":     e.name,
-            "amount":   e.amount,
-            "date":     str(e.date)
+            "owner": str(e.owner),
+            "name": e.name,
+            "amount": e.amount,
+            "date": str(e.date)
         } for e in events]), 200
     except Exception:
         return jsonify({"error": "Could not fetch balance events"}), 500
@@ -41,10 +41,10 @@ def get_balance(event_id: UUID):
         event = db.get_balance_event(event_id)
         return jsonify({
             "event_id": str(event.event_id),
-            "owner":    str(event.owner),
-            "name":     event.name,
-            "amount":   event.amount,
-            "date":     str(event.date)
+            "owner": str(event.owner),
+            "name": event.name,
+            "amount": event.amount,
+            "date": str(event.date)
         }), 200
     except Exception:
         return jsonify({"error": "Balance event not found"}), 404
@@ -107,10 +107,10 @@ def post_balance():
     db.insert_balance_event(event)
     return jsonify({
         "event_id": str(event_id),
-        "owner":    request.json['owner'],
-        "name":     request.json['name'],
-        "amount":   request.json['amount'],
-        "date":     request.json['date']
+        "owner": request.json['owner'],
+        "name": request.json['name'],
+        "amount": request.json['amount'],
+        "date": request.json['date']
     }), 201
 
 
