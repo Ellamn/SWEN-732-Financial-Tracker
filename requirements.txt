@@ -1,4 +1,5 @@
 flask
+flask-cors==4.0.1
 pydantic
 pytest>=7.0.0
 psycopg2-binary
