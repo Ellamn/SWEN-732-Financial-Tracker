@@ -6,27 +6,46 @@ BASE = 'http://127.0.0.1:5000/income/'
 
 
 def test_get_income(one_income):
+    # verifies that an income source can be retrieved by its id and returns the correct name
     result = get_rest_call(f"{BASE}{one_income}")
-    
+
     assert result['name'] == 'Job', "Failed to get"
 
 
 def test_put_income(one_income):
+    # verifies that updating both name and is_recurring of an income source persists correctly
     new_income = {
-        "name" : "Inheritance",
+        "name"         : "Inheritance",
         "is_recurring" : False
     }
 
-    result = put_rest_call(f"{BASE}{one_income}",json=new_income,expected_code=200)
-    assert result['message'] == 'Updated'
+    put_rest_call(f"{BASE}{one_income}", params=new_income)
 
-    # result = db_utils.exec_get_one("SELECT name, is_recurring FROM income_sources")
+    result = db_utils.exec_get_one("SELECT name, is_recurring FROM income_sources")
 
-    # assert result[0] == new_income['name'], "Incorrect put"
-    # assert result[1] == new_income['is_recurring'], "Incorrect put"
+    assert result[0] == new_income['name'] and result[1] == new_income['is_recurring'], "Incorrect put"
+
+
+def test_put_income_optional_name(one_income):
+    # verifies that a PUT with only a new name updates the name while leaving is_recurring unchanged
+    new_income = {"name": "Charity"}
+    put_rest_call(BASE + str(one_income), params=new_income)
+
+    result = db_utils.exec_get_one("SELECT name, is_recurring FROM income_sources")
+    assert result[0] == "Charity" and result[1] == True, "Failed to update name optionally"
+
+
+def test_put_income_optional_recurring(one_income):
+    # verifies that a PUT with only a new is_recurring value updates that field while leaving the name unchanged
+    new_income = {"is_recurring": True}
+    put_rest_call(BASE + str(one_income), params=new_income)
+
+    result = db_utils.exec_get_one("SELECT name, is_recurring FROM income_sources")
+    assert result[0] == "Job" and result[1] == True, "Failed to update is recurring optionally"
 
 
 def test_post_income(one_user):
+    # verifies that creating an income source returns 204 and persists to the correct owner
     new_income = {
         "owner" : str(one_user),
         "name" : "Charity",
@@ -42,8 +61,9 @@ def test_post_income(one_user):
 
 
 def test_delete_income(one_income):
-    delete_rest_call(f"{BASE}{one_income}", expected_code=200)
+    # verifies that deleting an income source by id removes it from the database entirely
+    delete_rest_call(f"{BASE}{one_income}")
 
-    # result = db_utils.exec_get_all("SELECT * FROM income_sources")
+    result, = db_utils.exec_get_one("SELECT COUNT(*) FROM income_sources")
 
-    # assert len(result) == 0, "Failed to delete"
+    assert result == 0, "Failed to delete"

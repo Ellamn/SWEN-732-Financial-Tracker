@@ -18,6 +18,16 @@ def setup_database_schema():
 # Attribution: Taken from past RIT classes and slightly modified
 
 def connect_to_db(config_file_path: str = '../config/db.yml'):
+    host = os.environ.get('POSTGRES_HOST')
+    if host:
+        return psycopg2.connect(
+            dbname=os.environ['POSTGRES_DB'],
+            user=os.environ['POSTGRES_USER'],
+            password=os.environ['POSTGRES_PASSWORD'],
+            host=host,
+            port=int(os.environ.get('POSTGRES_PORT', '5432')),
+        )
+
     yml_path = os.path.join(os.path.dirname(__file__), config_file_path)
 
     with open(yml_path, 'r') as file:

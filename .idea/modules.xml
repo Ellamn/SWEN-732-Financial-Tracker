@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/database.iml" filepath="$PROJECT_DIR$/.idea/database.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/SWEN-732-Financial-Tracker.iml" filepath="$PROJECT_DIR$/.idea/SWEN-732-Financial-Tracker.iml" />
     </modules>
   </component>
 </project>

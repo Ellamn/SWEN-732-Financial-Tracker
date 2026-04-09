@@ -1,0 +1,168 @@
+/* ===== Page Header ===== */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.dashboard-range-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.range-btn {
+  padding: 7px 16px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+/* ===== Balance Card ===== */
+.balance-card {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.balance-edit {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.balance-dollar {
+  color: var(--text-muted);
+  font-size: 1.4rem;
+}
+
+.balance-input {
+  width: 160px;
+  font-size: 1.4rem;
+  /* font-family: 'DM Mono', monospace; */
+  padding: 4px 10px;
+}
+
+.balance-value {
+  color: var(--accent);
+  font-size: 2.2rem;
+}
+
+.balance-update-btn {
+  font-size: 12px;
+}
+
+/* ===== Alerts ===== */
+.dashboard-alert {
+  margin-bottom: 20px;
+}
+
+/* ===== Stat Grid ===== */
+.stats-grid {
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  border: none;
+}
+
+.stat-value-large {
+  font-size: 1.5rem;
+}
+
+/* ===== Chart Layout ===== */
+.chart-row {
+  margin-bottom: 24px;
+}
+
+.chart-flex {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.chart-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.legend-value {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.legend-more {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ===== Tooltips ===== */
+.chart-tooltip {
+  background: white;
+  border: 1px solid rgba(183,149,228,0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  box-shadow: 0 4px 16px rgba(124,82,200,0.12);
+}
+
+.tooltip-title {
+  font-weight: 600;
+  color: #2d1f4e;
+}
+
+.tooltip-value {
+  /* font-family: 'DM Mono', monospace; */
+}
+
+/* ===== Bar Chart Tooltip ===== */
+.bar-tooltip-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #2d1f4e;
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.stat-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.alert-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+}
