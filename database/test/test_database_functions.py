@@ -1,5 +1,5 @@
 from datetime import datetime
-from uuid import uuid7, UUID
+from uuid import uuid4, UUID
 
 from src import database
 from src.models.balance_event import BalanceEvent
@@ -18,7 +18,7 @@ def test_get_user(test_user: UUID):
     assert user.user_id == test_user
 
 def test_insert_user():
-    user = User(user_id=uuid7(), name="test_user")
+    user = User(user_id=uuid4(), name="test_user")
     database.insert_user(user)
 
     retrieved_user = database.get_user_with_uuid(user.user_id)
@@ -27,7 +27,7 @@ def test_insert_user():
 
 
 def test_create_balance_event(test_user: UUID):
-    event = BalanceEvent(event_id=uuid7(), owner=test_user, name="test", amount=100, date=datetime.now())
+    event = BalanceEvent(event_id=uuid4(), owner=test_user, name="test", amount=100, date=datetime.now())
     database.insert_balance_event(event)
 
     retried_event = database.get_balance_event(event.event_id)
@@ -35,7 +35,7 @@ def test_create_balance_event(test_user: UUID):
     assert event.event_id == retried_event.event_id
 
 def test_create_budget_goal(test_user: UUID):
-    goal = BudgetGoal(goal_id=uuid7(), owner=test_user, name="test", amount=100, achieve_by_date=datetime.now(), started_on=datetime.now())
+    goal = BudgetGoal(goal_id=uuid4(), owner=test_user, name="test", amount=100, achieve_by_date=datetime.now(), started_on=datetime.now())
     database.insert_budget_goal(goal)
 
     retrieved_goal = database.get_budget_goal(goal.goal_id)
@@ -43,7 +43,7 @@ def test_create_budget_goal(test_user: UUID):
     assert goal.goal_id == retrieved_goal.goal_id
 
 def test_create_expense_category(test_user: UUID):
-    category = ExpenseCategory(category_id=uuid7(), owner=test_user, name="test")
+    category = ExpenseCategory(category_id=uuid4(), owner=test_user, name="test")
     database.insert_expense_category(category)
 
     retrieved_category = database.get_expense_category(category.category_id)
@@ -51,7 +51,7 @@ def test_create_expense_category(test_user: UUID):
     assert category.category_id == retrieved_category.category_id
 
 def test_create_income_source(test_user: UUID):
-    source = IncomeSource(source_id=uuid7(), owner=test_user, name="test", is_recurring=False)
+    source = IncomeSource(source_id=uuid4(), owner=test_user, name="test", is_recurring=False)
     database.insert_income_source(source)
 
     retrieved_source = database.get_income_source(source.source_id)

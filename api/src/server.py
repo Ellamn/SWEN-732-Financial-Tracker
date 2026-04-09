@@ -1,4 +1,6 @@
 from flask import Flask
+from flask_cors import CORS
+
 import sys
 
 from api.src.balance import balance_bp
@@ -8,6 +10,7 @@ from api.src.income import income_bp
 from api.src.users import users_bp
 
 app = Flask(__name__)
+CORS(app)
 
 
 app.register_blueprint(balance_bp)

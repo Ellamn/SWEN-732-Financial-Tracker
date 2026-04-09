@@ -4,7 +4,29 @@ from datetime import datetime
 from database.src import database as db
 from api.src.models import BalanceEvent
 
-balance_bp = Blueprint("balance",__name__,url_prefix="/balance")
+
+balance_bp = Blueprint("balance", __name__, url_prefix="/balance")
+
+
+@balance_bp.route('/owner/<owner_id>', methods=["GET"])
+def get_balances_by_owner(owner_id: UUID):
+    """
+    Returns all balance events for a given owner.
+
+    Args:
+        owner_id (UUID): the owner's user id
+    """
+    try:
+        events = db.get_balance_events_by_owner(owner_id)
+        return jsonify([{
+            "event_id": str(e.event_id),
+            "owner": str(e.owner),
+            "name": e.name,
+            "amount": e.amount,
+            "date": str(e.date)
+        } for e in events]), 200
+    except Exception:
+        return jsonify({"error": "Could not fetch balance events"}), 500
 
 
 @balance_bp.route('/<event_id>', methods=["GET"])
@@ -84,8 +106,10 @@ def post_balance():
     )
     db.insert_balance_event(event)
     return jsonify({
-        "event_id": str(event_id), "owner": request.json['owner'],
-        "name": request.json['name'], "amount": request.json['amount'],
+        "event_id": str(event_id),
+        "owner": request.json['owner'],
+        "name": request.json['name'],
+        "amount": request.json['amount'],
         "date": request.json['date']
     }), 201
 
