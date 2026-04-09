@@ -82,17 +82,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+      
       - name: Install frontend dependencies
         working-directory: financial-tracker
         run: npm install
+      
       - name: Run frontend tests
         working-directory: financial-tracker
         run: npx vitest run
-      - name: Stop Flask server
-        if: always()
-        run: |
-          if [ -f /tmp/flask.pid ]; then kill "$(cat /tmp/flask.pid)" 2>/dev/null || true; fi
-          
+      
       - name: Stop Flask server
         if: always()
         run: |
