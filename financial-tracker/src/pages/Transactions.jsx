@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "../context/UserContext";
-import { getBalancesByOwner, createBalanceEvent, deleteBalanceEvent } from "../api";
+import { createBalanceEvent, deleteBalanceEvent, updateBalanceEvent, getBalancesByOwner} from "../api";
 
 const DEFAULT_CATEGORIES = [
   "Groceries", "Dining Out", "Rent", "Transport", "Entertainment",
@@ -25,6 +25,9 @@ export default function Transactions() {
     type: "expense",
     date: new Date().toISOString().slice(0, 10),
   });
+
+  const [editId,   setEditId]   = useState(null);
+  const [editForm, setEditForm] = useState({});
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -81,14 +84,45 @@ export default function Transactions() {
     try {
       await deleteBalanceEvent(id);
       setTxList(prev => prev.filter(t => t.id !== id));
+      if (editId === id) setEditId(null);
     } catch {
       setError("Failed to delete transaction.");
     }
   };
 
+  const startEdit = (tx) => {
+    setEditId(tx.id);
+    setEditForm({
+      description: tx.description,
+      amount: Math.abs(tx.amount).toString(),
+      date: tx.date,
+      type: tx.type,
+      category: tx.category,
+    });
+  };
+
+  const saveEdit = async (id) => {
+    try {
+      const rawAmt = parseFloat(editForm.amount) || 0;
+      const signedAmt = editForm.type === "expense" ? -Math.abs(rawAmt) : Math.abs(rawAmt);
+      await updateBalanceEvent(id, editForm.description, signedAmt);
+      setTxList(prev => prev.map(t => t.id !== id ? t : {
+        ...t,
+        description: editForm.description,
+        amount: signedAmt,
+        date: editForm.date,
+        category: editForm.category,
+        type: editForm.type,
+      }));
+      setEditId(null);
+    } catch {
+      setError("Failed to update transaction.");
+    }
+  };
+
   const filtered = txList.filter(t => {
     const typeOk = filter === "all" || t.type === filter;
-    const catOk = catFilter === "all" || t.category === catFilter;
+    const catOk  = catFilter === "all" || t.category === catFilter;
     return typeOk && catOk;
   });
 
@@ -175,27 +209,70 @@ export default function Transactions() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map(tx => (
-                  <tr key={tx.id} style={{ borderBottom: "1px solid var(--border)", transition: "background 0.1s" }}
-                    onMouseEnter={e => e.currentTarget.style.background = "var(--surface2)"}
-                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                    <td style={{ padding: "14px 20px", fontSize: 12, color: "var(--text-muted)", fontFamily: "'DM Mono', monospace" }}>{tx.date}</td>
-                    <td style={{ padding: "14px 20px", fontWeight: 500 }}>{tx.description}</td>
-                    <td style={{ padding: "14px 20px" }}>
-                      <span className="tag tag-blue" style={{ fontSize: 10 }}>{tx.category}</span>
-                    </td>
-                    <td style={{ padding: "14px 20px" }}>
-                      <span className={`tag ${tx.type === "income" ? "tag-green" : "tag-red"}`} style={{ fontSize: 10 }}>{tx.type}</span>
-                    </td>
-                    <td style={{ padding: "14px 20px", fontFamily: "'DM Mono', monospace", fontWeight: 600, color: tx.amount > 0 ? "var(--accent)" : "var(--danger)" }}>
-                      {tx.amount > 0 ? "+" : ""}${Math.abs(tx.amount).toFixed(2)}
-                    </td>
-                    <td style={{ padding: "14px 20px" }}>
-                      <button onClick={() => deleteTx(tx.id)}
-                        style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 14 }}>✕</button>
-                    </td>
-                  </tr>
-                ))}
+                {filtered.map(tx => {
+                  const isEditing = editId === tx.id;
+                  return isEditing ? (
+                    <tr key={tx.id} style={{ borderBottom: "1px solid var(--border)", background: "var(--surface2)" }}>
+                      <td style={{ padding: "10px 12px" }}>
+                        <input type="date" value={editForm.date}
+                          onChange={e => setEditForm({ ...editForm, date: e.target.value })}
+                          style={{ fontSize: 12, padding: "3px 6px", width: 130 }} />
+                      </td>
+                      <td style={{ padding: "10px 12px" }}>
+                        <input value={editForm.description}
+                          onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                          style={{ fontSize: 13, padding: "3px 6px", width: "100%" }} />
+                      </td>
+                      <td style={{ padding: "10px 12px" }}>
+                        <select value={editForm.category}
+                          onChange={e => setEditForm({ ...editForm, category: e.target.value })}
+                          style={{ fontSize: 12, padding: "3px 6px" }}>
+                          {DEFAULT_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                        </select>
+                      </td>
+                      <td style={{ padding: "10px 12px" }}>
+                        <select value={editForm.type}
+                          onChange={e => setEditForm({ ...editForm, type: e.target.value })}
+                          style={{ fontSize: 12, padding: "3px 6px" }}>
+                          <option value="expense">expense</option>
+                          <option value="income">income</option>
+                        </select>
+                      </td>
+                      <td style={{ padding: "10px 12px" }}>
+                        <input type="number" value={editForm.amount}
+                          onChange={e => setEditForm({ ...editForm, amount: e.target.value })}
+                          style={{ fontSize: 12, padding: "3px 6px", width: 80, textAlign: "right" }} />
+                      </td>
+                      <td style={{ padding: "10px 12px", whiteSpace: "nowrap" }}>
+                        <button className="btn btn-primary" style={{ fontSize: 11, padding: "4px 10px", marginRight: 6 }}
+                          onClick={() => saveEdit(tx.id)}>Save</button>
+                        <button className="btn btn-ghost" style={{ fontSize: 11, padding: "4px 10px" }}
+                          onClick={() => setEditId(null)}>Cancel</button>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={tx.id} style={{ borderBottom: "1px solid var(--border)", transition: "background 0.1s", cursor: "pointer" }}
+                      onMouseEnter={e => e.currentTarget.style.background = "var(--surface2)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                      onClick={() => startEdit(tx)}>
+                      <td style={{ padding: "14px 20px", fontSize: 12, color: "var(--text-muted)", fontFamily: "'DM Mono', monospace" }}>{tx.date}</td>
+                      <td style={{ padding: "14px 20px", fontWeight: 500 }}>{tx.description}</td>
+                      <td style={{ padding: "14px 20px" }}>
+                        <span className="tag tag-blue" style={{ fontSize: 10 }}>{tx.category}</span>
+                      </td>
+                      <td style={{ padding: "14px 20px" }}>
+                        <span className={`tag ${tx.type === "income" ? "tag-green" : "tag-red"}`} style={{ fontSize: 10 }}>{tx.type}</span>
+                      </td>
+                      <td style={{ padding: "14px 20px", fontFamily: "'DM Mono', monospace", fontWeight: 600, color: tx.amount > 0 ? "var(--accent)" : "var(--danger)" }}>
+                        {tx.amount > 0 ? "+" : ""}${Math.abs(tx.amount).toFixed(2)}
+                      </td>
+                      <td style={{ padding: "14px 20px" }} onClick={e => e.stopPropagation()}>
+                        <button onClick={() => deleteTx(tx.id)}
+                          style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 14 }}>{"\u{2715}"}</button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -211,6 +288,7 @@ export default function Transactions() {
         <span className="mono" style={{ color: total >= 0 ? "var(--accent)" : "var(--danger)" }}>
           {total >= 0 ? "+" : ""}${Math.abs(total).toFixed(2)}
         </span>
+        <span style={{ marginLeft: 12, opacity: 0.7 }}>click any row to edit</span>
       </div>
     </div>
   );

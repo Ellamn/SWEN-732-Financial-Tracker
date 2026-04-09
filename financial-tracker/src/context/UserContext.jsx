@@ -53,7 +53,7 @@ export function UserProvider({ children }) {
           <div className="login-emoji">{"\u{1F4B0}"}</div>
           <h2 className="login-title">Budget Tracker</h2>
           <p className="login-subtitle">
-            Enter your username to continue. We'll create and account if you're new here.
+            Enter your username to continue. We'll create an account if you're new here.
           </p>
           <input
             className="login-input"

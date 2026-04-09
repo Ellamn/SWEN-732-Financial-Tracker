@@ -20,6 +20,8 @@ export default function Goals() {
     name: "", target: "", current: "", icon: "\u{1F3AF}", deadline: "", color: "#7c52c8",
   });
 
+  const [customAmts, setCustomAmts] = useState({});
+
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
@@ -36,7 +38,7 @@ export default function Goals() {
       }));
       setGoals(loaded);
     } catch {
-      setError("Failed to load goals. Check if the Flask API is running");
+      setError("Failed to load goals. Is your Flask API running?");
     }
     setLoading(false);
   }, [userId]);
@@ -101,12 +103,12 @@ export default function Goals() {
     }
   };
 
-  const contribute = (id, amt) => {
+  const adjustProgress = (id, delta) => {
     setGoals(prev => prev.map(g => {
       if (g.id !== id) return g;
-      const next = Math.min(g.target, g.current + amt);
+      const next = Math.min(g.target, Math.max(0, g.current + delta));
       const meta = loadUiMeta(userId);
-      meta[id]   = { ...meta[id], current: next };
+      meta[id] = { ...meta[id], current: next };
       saveUiMeta(userId, meta);
       return { ...g, current: next };
     }));
@@ -189,6 +191,7 @@ export default function Goals() {
             const pct = g.target > 0 ? Math.min((g.current / g.target) * 100, 100) : 0;
             const done = g.current >= g.target;
             const remaining = g.target - g.current;
+            const customAmt = customAmts[g.id] ?? "";
             return (
               <div key={g.id} className="card" style={{ borderColor: done ? g.color + "40" : "var(--border)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
@@ -209,7 +212,7 @@ export default function Goals() {
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     {done && <span className="tag tag-green">Complete!</span>}
                     <button onClick={() => deleteGoal(g.id)}
-                      style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}>\u{2715}</button>
+                      style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}>{"\u{2715}"}</button>
                   </div>
                 </div>
 
@@ -230,14 +233,36 @@ export default function Goals() {
                 </div>
 
                 {!done && (
-                  <div style={{ display: "flex", gap: 8 }}>
-                    {[10, 25, 50, 100].map(amt => (
-                      <button key={amt} className="btn btn-ghost"
-                        style={{ flex: 1, padding: "6px 0", fontSize: 11 }}
-                        onClick={() => contribute(g.id, amt)}>
-                        +${amt}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {[10, 25, 50, 100].map(amt => (
+                        <button key={amt} className="btn btn-ghost"
+                          style={{ flex: 1, padding: "6px 0", fontSize: 11 }}
+                          onClick={() => adjustProgress(g.id, amt)}>
+                          +${amt}
+                        </button>
+                      ))}
+                    </div>
+                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <button className="btn btn-ghost"
+                        style={{ padding: "5px 12px", fontSize: 14, fontWeight: 700 }}
+                        onClick={() => adjustProgress(g.id, -(parseFloat(customAmt) || 0))}>
+                        -
                       </button>
-                    ))}
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="Amount"
+                        value={customAmt}
+                        onChange={e => setCustomAmts(prev => ({ ...prev, [g.id]: e.target.value }))}
+                        style={{ flex: 1, fontSize: 12, padding: "5px 8px", textAlign: "center" }}
+                      />
+                      <button className="btn btn-ghost"
+                        style={{ padding: "5px 12px", fontSize: 14, fontWeight: 700 }}
+                        onClick={() => adjustProgress(g.id, parseFloat(customAmt) || 0)}>
+                        +
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

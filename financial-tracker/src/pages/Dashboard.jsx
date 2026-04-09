@@ -2,7 +2,6 @@ import "./Dashboard.css";
 import { useState, useEffect, useCallback } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useUser } from "../context/UserContext";
-import { getBalancesByOwner } from "../api";
 
 import warningIcon from "../assets/warning.svg";
 import editIcon from "../assets/edit.svg";
@@ -11,15 +10,26 @@ import expenseIcon from "../assets/expense.svg";
 import savingsIcon from "../assets/savings.svg";
 import rateIcon from "../assets/rate.svg";
 
-const CAT_COLORS  = ["#7c52c8","#3bafc8","#b5155e","#5564c0","#a040a0","#0e7c6e","#e07b39","#2a7abf"];
-const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const CAT_COLORS = ["#7c52c8","#3bafc8","#b5155e","#5564c0","#a040a0","#0e7c6e","#e07b39","#2a7abf"];
 
-function loadBalance(userId){ return parseFloat(localStorage.getItem(`balance_${userId}`) || "0"); }
-function saveBalance(userId, val){ localStorage.setItem(`balance_${userId}`, String(val)); }
+const getMonthName = (monthIndex) => new Intl.DateTimeFormat(undefined, { month: "short" }).format(new Date(2000, monthIndex, 1));
 
-function loadBudgetRows(userId) {
-  try { return JSON.parse(localStorage.getItem("budgetAmounts_" + userId)) || {}; }
-  catch { return {}; }
+function loadIds(userId) {
+  try { return JSON.parse(localStorage.getItem(`txIds_${userId}`) || "[]"); }
+  catch { return []; }
+}
+
+function loadBudgets(userId) {
+  try { return JSON.parse(localStorage.getItem(`budgets_${userId}`) || "null"); }
+  catch { return null; }
+}
+
+function loadBalance(userId) {
+  return parseFloat(localStorage.getItem(`balance_${userId}`) || "0");
+}
+
+function saveBalance(userId, val) {
+  localStorage.setItem(`balance_${userId}`, String(val));
 }
 
 const CustomTooltip = ({ active, payload }) => {
@@ -57,9 +67,7 @@ function PieSection({ title, data }) {
         <ResponsiveContainer width={200} height={200}>
           <PieChart>
             <Pie data={data} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3}>
-              {data.map((entry, i) => (
-                <Cell key={`cell-${i}`} fill={entry.color} />
-              ))}
+              {data.map((c, i) => <Cell key={i} fill={c.color} />)}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
           </PieChart>
@@ -89,20 +97,28 @@ export default function Dashboard() {
 
   const fetchTx = useCallback(async () => {
     setLoading(true);
-    try {
-      const events = await getBalancesByOwner(userId);
-      const loaded = events.map(ev => ({
-        id: ev.event_id,
-        name: ev.name,
-        amount: ev.amount / 100,
-        date: ev.date,
-        category: "Other",
-        type: ev.amount >= 0 ? "income" : "expense",
-      }));
-      setTransactions(loaded);
-    } catch {
-      
-    }
+    const ids = loadIds(userId);
+    const results = await Promise.allSettled(
+      ids.map(({ id }) =>
+        fetch(`http://localhost:5000/balance/${id}`).then(r => r.ok ? r.json() : null)
+      )
+    );
+    const loaded = results
+      .map((r, i) => {
+        if (r.status !== "fulfilled" || !r.value) return null;
+        const ev = r.value;
+        const meta = ids[i];
+        return {
+          id: ev.event_id,
+          name: ev.name,
+          amount: ev.amount / 100,
+          date: ev.date,
+          category: meta.category || "Other",
+          type: ev.amount >= 0 ? "income" : "expense",
+        };
+      })
+      .filter(Boolean);
+    setTransactions(loaded);
     setLoading(false);
   }, [userId]);
 
@@ -122,12 +138,28 @@ export default function Dashboard() {
   const netSavings = monthlyIncome - monthlyExpenses;
   const savingsRate = monthlyIncome > 0 ? Math.round((netSavings / monthlyIncome) * 100) : 0;
 
-  const budgetAmts = loadBudgetRows(userId);
-  const overBudget = Object.entries(budgetAmts).filter(([, { value, budget }]) => value > budget).map(([id, { value, budget }]) => ({ id, value, budget }));
-  const incomeTotal = thisMonth.filter(t => t.amount > 0).reduce((a, t) => a + t.amount, 0);
-  const expenseTotal = Math.abs(thisMonth.filter(t => t.amount < 0).reduce((a, t) => a + t.amount, 0));
-  const incomePieData = incomeTotal  > 0 ? [{ name: "Income", value: incomeTotal,  color: "#3bafc8" }] : [];
-  const expPieData = expenseTotal > 0 ? [{ name: "Expenses", value: expenseTotal, color: "#b5155e" }] : [];
+  const budgetMap = loadBudgets(userId) || {};
+  const overBudget = Object.entries(budgetMap).filter(([name, { value, budget }]) => value > budget).map(([name, { value, budget }]) => ({ name, value, budget }));
+
+  const expensesByCategory = {};
+
+  thisMonth.filter(t => t.amount < 0).forEach(t => {
+    expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + Math.abs(t.amount);
+  });
+
+  const categoryPieData = Object.entries(expensesByCategory).map(([name, value], i) => ({
+    name, value, color: CAT_COLORS[i % CAT_COLORS.length],
+  }));
+ 
+  const incomeByCategory = {};
+
+  thisMonth.filter(t => t.amount > 0).forEach(t => {
+    incomeByCategory[t.category] = (incomeByCategory[t.category] || 0) + t.amount;
+  });
+
+  const incomePieData = Object.entries(incomeByCategory).map(([name, value], i) => ({
+    name, value, color: CAT_COLORS[i % CAT_COLORS.length],
+  }));
 
   // monthly rollover for the last six months 
   const monthlyRollover = Array.from({ length: 6 }, (_, i) => {
@@ -140,10 +172,10 @@ export default function Dashboard() {
     });
     const income = mTx.filter(t => t.amount > 0).reduce((a, t) => a + t.amount, 0);
     const expenses = Math.abs(mTx.filter(t => t.amount < 0).reduce((a, t) => a + t.amount, 0));
-    return { month: MONTH_NAMES[m], income: Math.round(income), expenses: Math.round(expenses), savings: Math.round(income - expenses) };
+    return { month: getMonthName(m), income: Math.round(income), expenses: Math.round(expenses), savings: Math.round(income - expenses) };
   });
 
-  const monthLabel = `${MONTH_NAMES[curMonth]} ${curYear}`;
+  const monthLabel = `${getMonthName(curMonth)} ${curYear}`;
 
   return (
     <div>
@@ -189,7 +221,7 @@ export default function Dashboard() {
           <img src={warningIcon} className="alert-icon" alt="Warning" />
           <div>
             <strong>Over budget this month:</strong>{" "}
-            {overBudget.map(c => `$${c.value} spent / $${c.budget} limit`).join(" · ")}
+            {overBudget.map(c => `${c.name} ($${c.value} / $${c.budget} budget)`).join(" · ")}
           </div>
         </div>
       )}
@@ -205,14 +237,14 @@ export default function Dashboard() {
             <StatCard icon={rateIcon} label="Savings Rate" value={`${savingsRate}%`} sub="Of income saved" color="var(--accent4)" bg="#eef0fb"/>
           </div>
 
-          {(expPieData.length > 0 || incomePieData.length > 0) && (
+          {(categoryPieData.length > 0 || incomePieData.length > 0) && (
             <div className="grid-2 chart-row">
-              {expPieData.length > 0
-                ? <PieSection title="Spending this Month" data={expPieData} />
+              {categoryPieData.length > 0
+                ? <PieSection title="Spending by Category" data={categoryPieData} />
                 : <div className="card" style={{ display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:13 }}>No expenses this month</div>
               }
               {incomePieData.length > 0
-                ? <PieSection title="Income this Month" data={incomePieData} />
+                ? <PieSection title="Income Sources" data={incomePieData} />
                 : <div className="card" style={{ display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:13 }}>No income logged this month</div>
               }
             </div>

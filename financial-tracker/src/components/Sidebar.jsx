@@ -35,8 +35,7 @@ export default function Sidebar({ activePage, setActivePage }) {
 
   return (
     <aside className="sidebar">
-      {/* FinTrack header */}
-      <div className="sidebar-brand">
+      <button className="sidebar-brand" onClick={() => setActivePage("dashboard")}>
         <div className="brand-icon">
           <img src={brandIcon} alt="FinTrack logo" />
         </div>
@@ -44,9 +43,8 @@ export default function Sidebar({ activePage, setActivePage }) {
           <div className="brand-name">FinTrack</div>
           <div className="brand-sub">Student Edition</div>
         </div>
-      </div>
+      </button>
 
-      {/* nav links */}
       <nav className="sidebar-nav">
         {NAV.map((item) => (
           <button
@@ -60,7 +58,6 @@ export default function Sidebar({ activePage, setActivePage }) {
         ))}
       </nav>
 
-      {/* footer: balance and user and logout */}
       <div className="sidebar-footer">
         <div className="balance-widget">
           <div className="balance-label">Account Balance</div>

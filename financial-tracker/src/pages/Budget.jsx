@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { useUser } from "../context/UserContext";
-import { getExpenseCategoriesByOwner, deleteExpenseCategory } from "../api";
+import { createExpenseCategory, deleteExpenseCategory, getExpenseCategoriesByOwner } from "../api";
 
 const SPLIT_COLORS = ["#7c52c8", "#3bafc8", "#b5155e", "#5564c0", "#a040a0", "#0e7c6e"];
 const CAT_COLORS = ["#7c52c8", "#3bafc8", "#b5155e", "#5564c0", "#a040a0", "#0e7c6e", "#e07b39", "#2a7abf"];
@@ -53,20 +53,14 @@ export default function Budget() {
         setLoading(false);
       }
     } catch {
-      setError("Failed to load categories. Check if the Flask API is running");
+      setError("Failed to load categories. Is your Flask API running?");
       setLoading(false);
     }
   }, [userId]);
 
   const seedDefaults = async () => {
     const results = await Promise.allSettled(
-      DEFAULT_CATS.map(name =>
-        fetch("http://localhost:5000/expenses/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ owner: userId, name }),
-        }).then(r => r.ok ? r.json() : null)
-      )
+      DEFAULT_CATS.map(name => createExpenseCategory(userId, name))
     );
     const rows = results.map((r, i) => {
       const id = r.status === "fulfilled" && r.value ? r.value.category_id : "local_" + i;
@@ -93,13 +87,7 @@ export default function Budget() {
     setAddingCat(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:5000/expenses/", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ owner: userId, name: newCat.trim() }),
-      });
-      if (!res.ok) throw new Error(res.status);
-      const created = await res.json();
+      const created = await createExpenseCategory(userId, newCat.trim());
       const newRow = {
         id: created.category_id,
         name: newCat.trim(),
@@ -125,9 +113,9 @@ export default function Budget() {
     }
   };
 
-  const updateSplit = (i, val) => setSplits(prev => {const n = [...prev]; n[i] = {...n[i], percent: Math.max(0, Math.min(100, parseInt(val) || 0))}; return n;});
-  const updateBudget = (i, val) => setBudgets(prev => {const n = [...prev]; n[i] = {...n[i], budget: parseFloat(val) || 0}; return n;});
-  const updateSpent = (i, val) => setBudgets(prev => {const n = [...prev]; n[i] = {...n[i], value: parseFloat(val) || 0}; return n;});
+  const updateSplit = (i, val) => setSplits(prev  => { const n = [...prev]; n[i] = { ...n[i], percent: Math.max(0, Math.min(100, parseInt(val) || 0)) }; return n;});
+  const updateBudget = (i, val) => setBudgets(prev => { const n = [...prev]; n[i] = { ...n[i], budget: Math.max(0, parseFloat(val) || 0) }; return n;});
+  const updateSpent = (i, val) => setBudgets(prev => { const n = [...prev];  n[i] = { ...n[i], value: Math.max(0, parseFloat(val) || 0) }; return n;});
 
   const totalPercent = splits.reduce((a, s) => a + s.percent, 0);
   const pieData = splits.map((s, i) => ({name: s.category, value: s.percent, color: SPLIT_COLORS[i % SPLIT_COLORS.length]}));
@@ -142,6 +130,7 @@ export default function Budget() {
       {error && <div className="alert alert-danger" style={{ marginBottom: 16 }}>{error}</div>}
 
       <div className="grid-2" style={{ marginBottom: 24 }}>
+
         <div className="card">
           <div className="section-title">Paycheck Splitter</div>
           <div className="form-group">
@@ -199,13 +188,13 @@ export default function Budget() {
                         </div>
                         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                           <span style={{ fontSize: 10, color: "var(--text-muted)" }}>spent</span>
-                          <input type="number" value={c.value} onChange={e => updateSpent(i, e.target.value)}
+                          <input type="number" min="0" value={c.value} onChange={e => updateSpent(i, e.target.value)}
                             style={{ width: 60, padding: "2px 6px", fontSize: 12, textAlign: "right" }} />
                           <span style={{ color: "var(--text-muted)", fontSize: 11 }}>/</span>
-                          <input type="number" value={c.budget} onChange={e => updateBudget(i, e.target.value)}
+                          <input type="number" min="0" value={c.budget} onChange={e => updateBudget(i, e.target.value)}
                             style={{ width: 60, padding: "2px 6px", fontSize: 12, textAlign: "right" }} />
                           <button onClick={() => deleteCategory(c.id)}
-                            style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 12 }}>✕</button>
+                            style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 12 }}>{"\u{2715}"}</button>
                         </div>
                       </div>
                       <div className="progress-track">

@@ -134,6 +134,21 @@
   letter-spacing: -0.02em;
 }
 
+.sidebar-brand {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 28px 24px 24px;
+  transition: background 0.15s;
+}
+
+.sidebar-brand:hover {
+  background: rgba(255,255,255,0.15);
+}
+
 .sidebar-user-row {
   margin-top: 12px;
   padding-top: 12px;
@@ -156,7 +171,6 @@
 .sidebar-logout {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
   padding: 5px 10px;
   border-radius: 8px;
   border: 1.5px solid rgba(151,117,210,0.35);
