@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Project Overview 
-FinTrack is a finance tracker built for students to help them manage thier personal finanaces. It offers users a lot of flexibility in logging thier income, expenses, savings goals, and budget. Data is stored in PostgreSQL and exposed in a Flask RESTful API, and the frontend is built through React. 
+FinTrack is a finance tracker built for students to help them manage thier personal finances. It offers users a lot of flexibility in logging their income, expenses, savings goals, and budget. Data is stored in PostgreSQL and exposed in a Flask RESTful API, and the frontend is built through React. 
 
 ## Technologies
 | Layer | Technology |
@@ -39,7 +39,7 @@ SWEN-732-Financial-Tracker/
 │   │   └── test_users_api.py 
 │   │   └── test_utils.py                
 ├── database/
-│   ├── src/                        # databse funcitons and models 
+│   ├── src/                        # database funcitons and models 
 |   |   ├── models/  
 |   |   |   ├── balance_event.py 
 |   |   |   ├── budget_goal.py 
@@ -110,7 +110,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser. Enter a username in the loign screen (it will create an account if you do not already have one), and explore the webpage. 
+Open `http://localhost:5173` in your browser. Enter a username in the login screen (it will create an account if you do not already have one), and explore the webpage. 
 
 ## Running tests locally
 
@@ -156,7 +156,7 @@ GitHub Actions runs the same flows: PostgreSQL service, database tests, then a b
 2. follow the existing code style 
 3. add or update tests for any changed endpoints. All existing tests must pass before opening a PR
 4. open a pull request against 'main' with a clear explanation of what you changed and why 
-5. at least two team memebers must approve the PR before it can be merged 
+5. at least two team members must approve the PR before it can be merged 
 
 ## Contact 
 To report a bug, open an issue on [GitHub repository](https://github.com/Ellamn/SWEN-732-Financial-Tracker/issues).
