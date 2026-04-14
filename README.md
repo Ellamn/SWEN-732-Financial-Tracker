@@ -1,5 +1,7 @@
 # SWEN-732-Financial-Tracker
 
+[![codecov](https://codecov.io/gh/Ellamn/SWEN-732-Financial-Tracker/branch/main/graph/badge.svg)](https://codecov.io/gh/Ellamn/SWEN-732-Financial-Tracker)
+
 ## Dependencies
 
 From the repository root:
