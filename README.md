@@ -2,7 +2,7 @@
 
 [![codecov](https://codecov.io/gh/Ellamn/SWEN-732-Financial-Tracker/branch/main/graph/badge.svg)](https://codecov.io/gh/Ellamn/SWEN-732-Financial-Tracker)
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![codecov](https://codecov.io/gh/Ellamn/SWEN-732-Financial-Tracker/branch/main/graph/badge.svg)](https://codecov.io/gh/Ellamn/SWEN-732-Financial-Tracker) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Project Overview 
 FinTrack is a finance tracker built for students to help them manage thier personal finances. It offers users a lot of flexibility in logging their income, expenses, savings goals, and budget. Data is stored in PostgreSQL and exposed in a Flask RESTful API, and the frontend is built through React. 
@@ -160,3 +160,9 @@ GitHub Actions runs the same flows: PostgreSQL service, database tests, then a b
 
 ## Contact 
 To report a bug, open an issue on [GitHub repository](https://github.com/Ellamn/SWEN-732-Financial-Tracker/issues).
+
+
+## Code of Conduct
+This project is committed to providing a respectful, inclusive, and collaborative environment for everyone who contributes. Contributors are expected to communicate professionally, welcome constructive feedback, and avoid harassment, discrimination, or abusive behavior in all project spaces.
+
+By participating in this repository, you agree to treat others with respect, focus discussions on the work, and help maintain a productive community. If you experience or witness behavior that violates this code of conduct, please report it to the project maintainers so it can be reviewed and addressed appropriately.
