@@ -9,6 +9,8 @@ import goalsIcon from "../assets/goals.svg";
 import savingsIcon from "../assets/savings.svg";
 import brandIcon from "../assets/brand.svg";
 
+import PropTypes from "prop-types";
+
 const NAV = [
   {id:"dashboard", icon: dashboardIcon, label: "Dashboard"},
   {id:"transactions", icon: transactionsIcon, label: "Transactions" },
