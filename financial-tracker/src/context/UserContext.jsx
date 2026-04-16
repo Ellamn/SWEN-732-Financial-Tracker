@@ -5,12 +5,7 @@ import { getUserByName, createUser } from "../api";
 const UserCtx = createContext(null);
 export const useUser = () => useContext(UserCtx);
 
-// // sanitize values before writing to localStorage 
-// function sanitize(value) {
-//   return String(value).replace(/[^a-zA-Z0-9\-_. @]/g, "");
-// }
-// rebuild values from regex matches instead of passing API responses through,
-// so the taint chain from fetch -> localStorage is broken
+
 const UUID_GROUPS = /^([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{12})$/i;
 const NAME_ALLOWED = /[a-zA-Z0-9_. @-]/;
 const NAME_MAX_LEN = 64;
