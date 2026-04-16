@@ -6,4 +6,3 @@ psycopg2-binary
 pyaml
 requests
 coverage
-prop-types
