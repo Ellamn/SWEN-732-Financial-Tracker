@@ -7,6 +7,8 @@ from api.src.models import BalanceEvent
 
 balance_bp = Blueprint("balance", __name__, url_prefix="/balance")
 
+NOT_FOUND = "Balance event not found"
+
 
 @balance_bp.route('/owner/<owner_id>', methods=["GET"])
 def get_balances_by_owner(owner_id: UUID):
@@ -47,7 +49,7 @@ def get_balance(event_id: UUID):
             "date": str(event.date)
         }), 200
     except Exception:
-        return jsonify({"error": "Balance event not found"}), 404
+        return jsonify({"error": NOT_FOUND}), 404
 
 
 @balance_bp.route('/<event_id>', methods=["PUT"])
@@ -75,8 +77,8 @@ def put_balance(event_id: UUID):
         return jsonify({"message": "Updated"}), 200
     except ValueError:
         return jsonify({"error": "Invalid amount"}), 400
-    except:
-        return jsonify({"error": "Balance event not found"}), 404
+    except Exception:
+        return jsonify({"error": NOT_FOUND}), 404
 
 
 @balance_bp.route('/', methods=["POST"])
@@ -125,5 +127,5 @@ def delete_balance(event_id: UUID):
     try:
         db.delete_balance_event(event_id)
         return jsonify({"message": "Deleted"}), 200
-    except:
-        return jsonify({"error": "Balance event not found"}), 404
+    except Exception:
+        return jsonify({"error": NOT_FOUND}), 404

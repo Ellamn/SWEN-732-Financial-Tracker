@@ -59,7 +59,7 @@ export default function Goals() {
         body: JSON.stringify({
           owner: userId,
           name: form.name,
-          amount: Math.round(parseFloat(form.target) * 100),
+          amount: Math.round(Number.parseFloat(form.target) * 100),
           achieve_by_date: deadline,
           started_on: today,
         }),
@@ -70,17 +70,17 @@ export default function Goals() {
       const id = created.goal_id;
 
       const meta = loadUiMeta(userId);
-      meta[id] = { icon: form.icon, color: form.color, current: parseFloat(form.current) || 0 };
+      meta[id] = { icon: form.icon, color: form.color, current: Number.parseFloat(form.current) || 0 };
       saveUiMeta(userId, meta);
 
       setGoals(prev => [...prev, {
         id,
         name: form.name,
-        target: parseFloat(form.target),
+        target: Number.parseFloat(form.target),
         deadline: form.deadline,
         icon: form.icon,
         color: form.color,
-        current: parseFloat(form.current) || 0,
+        current: Number.parseFloat(form.current) || 0,
       }]);
       setShowAdd(false);
       setForm({ name: "", target: "", current: "", icon: "\u{1F3AF}", deadline: "", color: "#7c52c8"});
@@ -127,61 +127,135 @@ export default function Goals() {
       {error && <div className="alert alert-danger" style={{ marginBottom: 16 }}>{error}</div>}
 
       {showAdd && (
-        <div className="card" style={{ marginBottom: 24 }}>
-          <div className="section-title">Create New Goal</div>
-          <div className="grid-2" style={{ gap: 16 }}>
-            <div className="form-group">
-              <label>Goal Name</label>
-              <input placeholder="e.g. Emergency Fund" value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })} />
-            </div>
-            <div className="form-group">
-              <label>Target Amount ($)</label>
-              <input type="number" placeholder="1000" value={form.target}
-                onChange={e => setForm({ ...form, target: e.target.value })} />
-            </div>
-            <div className="form-group">
-              <label>Already Saved ($)</label>
-              <input type="number" placeholder="0" value={form.current}
-                onChange={e => setForm({ ...form, current: e.target.value })} />
-            </div>
-            <div className="form-group">
-              <label>Deadline (optional)</label>
-              <input type="date" value={form.deadline}
-                onChange={e => setForm({ ...form, deadline: e.target.value })} />
-            </div>
-            <div className="form-group">
-              <label>Icon</label>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {ICONS.map(ic => (
-                  <button key={ic} onClick={() => setForm({ ...form, icon: ic })}
-                    style={{
-                      fontSize: 18, width: 36, height: 36,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      border: "2px solid " + (form.icon === ic ? "var(--accent)" : "var(--border)"),
-                      borderRadius: 8, background: "var(--surface2)", cursor: "pointer",
-                    }}>{ic}</button>
-                ))}
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Color</label>
-              <div style={{ display: "flex", gap: 8 }}>
-                {COLORS.map(c => (
-                  <button key={c} onClick={() => setForm({ ...form, color: c })}
-                    style={{ width: 28, height: 28, borderRadius: "50%", background: c, border: "3px solid " + (form.color === c ? "white" : "transparent"), cursor: "pointer" }} />
-                ))}
-              </div>
-            </div>
+      <div className="card" style={{ marginBottom: 24 }}>
+        <div className="section-title">Create New Goal</div>
+
+        <div className="grid-2" style={{ gap: 16 }}>
+          <div className="form-group">
+            <label htmlFor="goal-name">Goal Name</label>
+            <input
+              id="goal-name"
+              placeholder="e.g. Emergency Fund"
+              value={form.name}
+              onChange={e => setForm({ ...form, name: e.target.value })}
+            />
           </div>
-          <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-            <button className="btn btn-primary" onClick={addGoal} disabled={saving}>
-              {saving ? "Creating..." : "Create Goal"}
-            </button>
-            <button className="btn btn-ghost" onClick={() => setShowAdd(false)}>Cancel</button>
+
+          <div className="form-group">
+            <label htmlFor="goal-target">Target Amount ($)</label>
+            <input
+              id="goal-target"
+              type="number"
+              placeholder="1000"
+              value={form.target}
+              onChange={e => setForm({ ...form, target: e.target.value })}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="goal-current">Already Saved ($)</label>
+            <input
+              id="goal-current"
+              type="number"
+              placeholder="0"
+              value={form.current}
+              onChange={e => setForm({ ...form, current: e.target.value })}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="goal-deadline">Deadline (optional)</label>
+            <input
+              id="goal-deadline"
+              type="date"
+              value={form.deadline}
+              onChange={e => setForm({ ...form, deadline: e.target.value })}
+            />
+          </div>
+
+          <fieldset
+            className="form-group"
+            style={{ border: "none", padding: 0, margin: 0 }}
+          >
+            <legend
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                color: "var(--text-muted)",
+                marginBottom: 6,
+              }}
+            >
+              Icon
+            </legend>
+            
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {ICONS.map(ic => (
+                <button
+                  key={ic}
+                  onClick={() => setForm({ ...form, icon: ic })}
+                  style={{
+                    fontSize: 18,
+                    width: 36,
+                    height: 36,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border:
+                      "2px solid " +
+                      (form.icon === ic ? "var(--accent)" : "var(--border)"),
+                    borderRadius: 8,
+                    background: "var(--surface2)",
+                    cursor: "pointer",
+                  }}
+                >
+                  {ic}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+            
+          <div className="form-group">
+            <label>Color</label>
+            <div style={{ display: "flex", gap: 8 }}>
+              {COLORS.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setForm({ ...form, color: c })}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: "50%",
+                    background: c,
+                    border:
+                      "3px solid " +
+                      (form.color === c ? "white" : "transparent"),
+                    cursor: "pointer",
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
-      )}
+            
+        <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+          <button
+            className="btn btn-primary"
+            onClick={addGoal}
+            disabled={saving}
+          >
+            {saving ? "Creating..." : "Create Goal"}
+          </button>
+          <button
+            className="btn btn-ghost"
+            onClick={() => setShowAdd(false)}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+      )}    
 
       {loading ? (
         <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>Loading goals...</div>
@@ -246,7 +320,7 @@ export default function Goals() {
                     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                       <button className="btn btn-ghost"
                         style={{ padding: "5px 12px", fontSize: 14, fontWeight: 700 }}
-                        onClick={() => adjustProgress(g.id, -(parseFloat(customAmt) || 0))}>
+                        onClick={() => adjustProgress(g.id, -(Number.parseFloat(customAmt) || 0))}>
                         -
                       </button>
                       <input
@@ -259,7 +333,7 @@ export default function Goals() {
                       />
                       <button className="btn btn-ghost"
                         style={{ padding: "5px 12px", fontSize: 14, fontWeight: 700 }}
-                        onClick={() => adjustProgress(g.id, parseFloat(customAmt) || 0)}>
+                        onClick={() => adjustProgress(g.id, Number.parseFloat(customAmt) || 0)}>
                         +
                       </button>
                     </div>

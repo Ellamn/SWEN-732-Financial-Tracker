@@ -55,7 +55,7 @@ export default function Transactions() {
     setSaving(true);
     setError("");
     try {
-      const rawAmt = parseFloat(form.amount);
+      const rawAmt = Number.parseFloat(form.amount);
       const signedAmt = form.type === "expense" ? -Math.abs(rawAmt) : Math.abs(rawAmt);
       const event = await createBalanceEvent(userId, form.description, signedAmt, form.date);
       setTxList(prev => [{
@@ -103,17 +103,17 @@ export default function Transactions() {
 
   const saveEdit = async (id) => {
     try {
-      const rawAmt = parseFloat(editForm.amount) || 0;
+      const rawAmt = Number.parseFloat(editForm.amount) || 0;
       const signedAmt = editForm.type === "expense" ? -Math.abs(rawAmt) : Math.abs(rawAmt);
       await updateBalanceEvent(id, editForm.description, signedAmt);
-      setTxList(prev => prev.map(t => t.id !== id ? t : {
+      setTxList(prev => prev.map(t => t.id === id ? {
         ...t,
         description: editForm.description,
         amount: signedAmt,
         date: editForm.date,
         category: editForm.category,
         type: editForm.type,
-      }));
+      } : t));
       setEditId(null);
     } catch {
       setError("Failed to update transaction.");
@@ -145,31 +145,31 @@ export default function Transactions() {
           <div className="section-title">New Transaction</div>
           <div className="grid-2" style={{ gap: 16 }}>
             <div className="form-group">
-              <label>Description</label>
-              <input placeholder="e.g. Wegmans grocery run" value={form.description}
+              <label htmlFor="form-description">Description</label>
+              <input id="form-description" placeholder="e.g. Wegmans grocery run" value={form.description}
                 onChange={e => setForm({ ...form, description: e.target.value })} />
             </div>
             <div className="form-group">
-              <label>Amount ($)</label>
-              <input type="number" placeholder="0.00" value={form.amount}
+              <label htmlFor="form-amount">Amount ($)</label>
+              <input id="form-amount" type="number" placeholder="0.00" value={form.amount}
                 onChange={e => setForm({ ...form, amount: e.target.value })} />
             </div>
             <div className="form-group">
-              <label>Category</label>
-              <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+              <label htmlFor="form-category">Category</label>
+              <select id="form-category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
                 {DEFAULT_CATEGORIES.map(c => <option key={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-group">
-              <label>Type</label>
-              <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
+              <label htmlFor="form-type">Type</label>
+              <select id="form-type" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
                 <option value="expense">Expense</option>
                 <option value="income">Income</option>
               </select>
             </div>
             <div className="form-group">
-              <label>Date</label>
-              <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
+              <label htmlFor="form-date">Date</label>
+              <input id="form-date" type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
             </div>
           </div>
           <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
@@ -283,7 +283,7 @@ export default function Transactions() {
       </div>
 
       <div style={{ marginTop: 16, color: "var(--text-muted)", fontSize: 12 }}>
-        {filtered.length} transaction{filtered.length !== 1 ? "s" : ""} ·{" "}
+        {filtered.length} transaction{filtered.length === 1 ? "" : "s"} ·{" "}
         Total:{" "}
         <span className="mono" style={{ color: total >= 0 ? "var(--accent)" : "var(--danger)" }}>
           {total >= 0 ? "+" : ""}${Math.abs(total).toFixed(2)}

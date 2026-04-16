@@ -1,17 +1,23 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useMemo } from "react";
+import PropTypes from "prop-types";
 import { getUserByName, createUser } from "../api";
 
 const UserCtx = createContext(null);
 export const useUser = () => useContext(UserCtx);
 
+// sanitize values before writing to localStorage to prevent tainted data storage
+function sanitize(value) {
+  return String(value).replace(/[^a-zA-Z0-9\-_. @]/g, "");
+}
+
 export function UserProvider({ children }) {
 
   // bit of a cheat, userId in localStorage so you don't have to login every time you refresh 
-  const [userId, setUserId] = useState(() => localStorage.getItem("userId") || null);
-  const [username, setUsername] = useState(() => localStorage.getItem("username") || "");
+  const [userId,     setUserId]     = useState(() => localStorage.getItem("userId") || null);
+  const [username,   setUsername]   = useState(() => localStorage.getItem("username") || "");
   const [loginInput, setLoginInput] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error,      setError]      = useState("");
+  const [loading,    setLoading]    = useState(false);
 
   const login = async () => {
     if (!loginInput.trim()) return;
@@ -20,16 +26,16 @@ export function UserProvider({ children }) {
     try {
       // for existing user 
       const user = await getUserByName(loginInput.trim());
-      localStorage.setItem("userId", user.id);
-      localStorage.setItem("username", user.name);
+      localStorage.setItem("userId",   sanitize(user.id));
+      localStorage.setItem("username", sanitize(user.name));
       setUserId(user.id);
       setUsername(user.name);
     } catch {
       // user doesn't exist, make a new one 
       try {
         const newUser = await createUser(loginInput.trim());
-        localStorage.setItem("userId", newUser.id);
-        localStorage.setItem("username", newUser.name);
+        localStorage.setItem("userId",   sanitize(newUser.id));
+        localStorage.setItem("username", sanitize(newUser.name));
         setUserId(newUser.id);
         setUsername(newUser.name);
       } catch {
@@ -45,6 +51,12 @@ export function UserProvider({ children }) {
     setUserId(null);
     setUsername("");
   };
+
+  // so the context value object is stable across renders
+  const contextValue = useMemo(
+    () => ({ userId, username, logout }),
+    [userId, username]
+  );
 
   if (!userId) {
     return (
@@ -72,8 +84,12 @@ export function UserProvider({ children }) {
   }
 
   return (
-    <UserCtx.Provider value={{ userId, username, logout }}>
+    <UserCtx.Provider value={contextValue}>
       {children}
     </UserCtx.Provider>
   );
 }
+
+UserProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};

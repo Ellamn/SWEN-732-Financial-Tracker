@@ -19,7 +19,7 @@ function loadBudgetAmounts(userId){ try { return JSON.parse(localStorage.getItem
 function saveBudgetAmounts(userId, amts){ localStorage.setItem("budgetAmounts_" + userId, JSON.stringify(amts)); }
 function loadSplits(userId){ try { return JSON.parse(localStorage.getItem("splits_" + userId)) || null; }    catch { return null; } }
 function saveSplits(userId, s){ localStorage.setItem("splits_" + userId, JSON.stringify(s)); }
-function loadPaycheck(userId){ return parseFloat(localStorage.getItem("paycheck_" + userId) || "600"); }
+function loadPaycheck(userId){ return Number.parseFloat(localStorage.getItem("paycheck_" + userId) || "600"); }
 function savePaycheck(userId, v){ localStorage.setItem("paycheck_" + userId, String(v)); }
 
 export default function Budget() {
@@ -113,9 +113,9 @@ export default function Budget() {
     }
   };
 
-  const updateSplit = (i, val) => setSplits(prev  => { const n = [...prev]; n[i] = { ...n[i], percent: Math.max(0, Math.min(100, parseInt(val) || 0)) }; return n;});
-  const updateBudget = (i, val) => setBudgets(prev => { const n = [...prev]; n[i] = { ...n[i], budget: Math.max(0, parseFloat(val) || 0) }; return n;});
-  const updateSpent = (i, val) => setBudgets(prev => { const n = [...prev];  n[i] = { ...n[i], value: Math.max(0, parseFloat(val) || 0) }; return n;});
+  const updateSplit = (i, val) => setSplits(prev  => { const n = [...prev]; n[i] = { ...n[i], percent: Math.max(0, Math.min(100, Number.parseInt(val) || 0)) }; return n;});
+  const updateBudget = (i, val) => setBudgets(prev => { const n = [...prev]; n[i] = { ...n[i], budget: Math.max(0, Number.parseFloat(val) || 0) }; return n;});
+  const updateSpent = (i, val) => setBudgets(prev => { const n = [...prev];  n[i] = { ...n[i], value: Math.max(0, Number.parseFloat(val) || 0) }; return n;});
 
   const totalPercent = splits.reduce((a, s) => a + s.percent, 0);
   const pieData = splits.map((s, i) => ({name: s.category, value: s.percent, color: SPLIT_COLORS[i % SPLIT_COLORS.length]}));
@@ -134,16 +134,16 @@ export default function Budget() {
         <div className="card">
           <div className="section-title">Paycheck Splitter</div>
           <div className="form-group">
-            <label>Paycheck Amount ($)</label>
-            <input type="number" value={paycheck}
-              onChange={e => setPaycheck(parseFloat(e.target.value) || 0)} />
+            <label htmlFor="paycheck-input">Paycheck Amount ($)</label>
+            <input id="paycheck-input" type="number" value={paycheck}
+              onChange={e => setPaycheck(Number.parseFloat(e.target.value) || 0)} />
           </div>
           <div style={{ display: "flex", gap: 20, alignItems: "center", marginBottom: 20 }}>
             <ResponsiveContainer width={160} height={160}>
               <PieChart>
                 <Pie data={pieData} dataKey="value" cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3}>
                   {pieData.map((entry, i) => (
-                    <Cell key={`cell-${i}`} fill={entry.color} />
+                    <Cell key={entry.color} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(val, name) => [val + "% - $" + ((val / 100) * paycheck).toFixed(2), name]} />
@@ -154,7 +154,7 @@ export default function Budget() {
                 {totalPercent}% allocated {totalPercent !== 100 && ("(" + (totalPercent > 100 ? "over" : "under") + " by " + Math.abs(100 - totalPercent) + "%)")}
               </div>
               {splits.map((s, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <div key={s.category} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                   <div style={{ width: 8, height: 8, borderRadius: 2, background: SPLIT_COLORS[i % SPLIT_COLORS.length], flexShrink: 0 }} />
                   <span style={{ fontSize: 12, flex: 1, color: "var(--text-sub)" }}>{s.category}</span>
                   <input type="number" value={s.percent} onChange={e => updateSplit(i, e.target.value)}
@@ -198,10 +198,17 @@ export default function Budget() {
                         </div>
                       </div>
                       <div className="progress-track">
-                        <div className="progress-fill" style={{
-                          width: pct + "%",
-                          background: over ? "var(--danger)" : pct > 80 ? "var(--accent4)" : c.color,
-                        }} />
+                        {(() => {
+                          let progressColor;
+                          if (over) {
+                            progressColor = "var(--danger)";
+                          } else if (pct > 80) {
+                            progressColor = "var(--accent4)";
+                          } else {
+                            progressColor = c.color;
+                          }
+                          return <div className="progress-fill" style={{ width: pct + "%", background: progressColor }} />;
+                        })()}
                       </div>
                     </div>
                   );
@@ -230,8 +237,8 @@ export default function Budget() {
             {label: "Total Spent", value: "$" + budgets.reduce((a, c) => a + c.value,  0).toFixed(0), color: "var(--danger)"},
             {label: "Remaining", value: "$" + budgets.reduce((a, c) => a + c.budget - c.value, 0).toFixed(0), color: "var(--accent)"},
             {label: "Over-budget Categories", value: budgets.filter(c => c.value > c.budget).length, color: "var(--accent4)"},
-          ].map((s, i) => (
-            <div key={i} className="card-sm">
+          ].map((s) => (
+            <div key={s.label} className="card-sm">
               <div className="stat-label">{s.label}</div>
               <div className="stat-value mono" style={{ color: s.color, fontSize: "1.3rem"}}>{s.value}</div>
             </div>

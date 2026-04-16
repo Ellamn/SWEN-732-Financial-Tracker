@@ -21,7 +21,7 @@ def get_income(income_id: UUID):
     try:
         income = db.get_income_source(income_id)
         return jsonify(income.__dict__)
-    except:
+    except Exception:
         return jsonify({"error": f"Balance event {income_id} not found"}), 404
 
 
@@ -54,7 +54,7 @@ def put_income(income_id: UUID):
         return jsonify({"message": "Updated"}), 200
     except ValueError:
         return jsonify({"error": "Invalid is_recurring"}), 400
-    except:
+    except Exception:
         return jsonify({"error": f"Balance event {income_id} not found"}), 404
 
 
@@ -92,5 +92,5 @@ def delete_income(income_id: UUID):
     try:
         db.delete_income_source(income_id)
         return jsonify({"message": "DELETED"}), 200
-    except:
+    except Exception:
         return jsonify({"error": f"Balance event {income_id} not found"}), 404

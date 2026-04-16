@@ -39,7 +39,6 @@
 .balance-input {
   width: 160px;
   font-size: 1.4rem;
-  /* font-family: 'DM Mono', monospace; */
   padding: 4px 10px;
 }
 
@@ -131,10 +130,6 @@
 .tooltip-title {
   font-weight: 600;
   color: #2d1f4e;
-}
-
-.tooltip-value {
-  /* font-family: 'DM Mono', monospace; */
 }
 
 /* ===== Bar Chart Tooltip ===== */

@@ -26,7 +26,7 @@ app.register_blueprint(users_bp)
 # '/<variable>' = url variable
 # https://flask.palletsprojects.com/en/stable/api/#flask.Request
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def hello_world():
     return 'Hello world!'
 

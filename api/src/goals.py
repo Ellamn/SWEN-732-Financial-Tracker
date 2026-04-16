@@ -41,7 +41,7 @@ def get_goals(goal_id: UUID):
     try:
         goal = db.get_budget_goal(goal_id)
         return jsonify(goal.__dict__)
-    except:
+    except Exception:
         return jsonify({"error": f"Budget Goal {goal_id} not found"}), 404
 
 
@@ -74,7 +74,7 @@ def put_goals(goal_id: UUID):
         return jsonify({"message": "Updated"}), 200
     except ValueError:
         return jsonify({"error": "Invalid amount"}), 400
-    except:
+    except Exception:
         return jsonify({"error": f"Budget Goal {goal_id} not found"}), 404
 
 
@@ -130,5 +130,5 @@ def delete_goals(goal_id: UUID):
     try:
         db.delete_budget_goal(goal_id)
         return jsonify({"message": "Deleted"}), 200
-    except:
+    except Exception:
         return jsonify({"error": f"Budget goal {goal_id} not found"}), 404

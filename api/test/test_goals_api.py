@@ -1,7 +1,7 @@
 import datetime
 
 from database.src import db_utils
-from test_utils import *
+from test_utils import get_rest_call, post_rest_call, put_rest_call, delete_rest_call
 
 BASE = 'http://127.0.0.1:5000/goals/'
 BASE_OWNER = 'http://127.0.0.1:5000/goals/owner/'

@@ -1,4 +1,4 @@
-from test_utils import *
+from test_utils import get_rest_call, post_rest_call, put_rest_call, delete_rest_call
 from database.src import db_utils
 
 BASE = 'http://127.0.0.1:5000/users/'
@@ -67,7 +67,7 @@ def test_put_users(one_user):
 
 def test_delete_users(one_user):
     # verifies that deleting a user by id removes them from the database entirely
-    result = delete_rest_call(BASE + str(one_user))
+    delete_rest_call(BASE + str(one_user))
 
     result, = db_utils.exec_get_one("SELECT COUNT(*) FROM users")
 

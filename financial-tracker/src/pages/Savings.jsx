@@ -80,7 +80,7 @@ export default function Savings() {
   })();
 
   const data = buildProjection(currentSaved, monthlyContrib, months, interest);
-  const finalAmount = data.length > 0 ? data[data.length - 1].cumulative : currentSaved;
+  const finalAmount = data.length > 0 ? data.at(-1).cumulative : currentSaved;
 
   const monthsToGoal = (() => {
     let c = currentSaved, m = 0;
@@ -99,30 +99,30 @@ export default function Savings() {
         <div className="card">
           <div className="section-title">Projection Settings</div>
           <div className="form-group">
-            <label>Current Savings ($)</label>
-            <input type="number" value={currentSaved}
-              onChange={e => set("currentSaved", parseFloat(e.target.value) || 0)} />
+            <label htmlFor="currentSaved">Current Savings ($)</label>
+            <input id="currentSaved" type="number" value={currentSaved}
+              onChange={e => set("currentSaved", Number.parseFloat(e.target.value) || 0)} />
           </div>
           <div className="form-group">
-            <label>Monthly Contribution ($)</label>
-            <input type="number" value={monthlyContrib}
-              onChange={e => set("monthlyContrib", parseFloat(e.target.value) || 0)} />
+            <label htmlFor="monthlyContrib">Monthly Contribution ($)</label>
+            <input id="monthlyContrib" type="number" value={monthlyContrib}
+              onChange={e => set("monthlyContrib", Number.parseFloat(e.target.value) || 0)} />
           </div>
           <div className="form-group">
             <label>Projection Length - {months} months</label>
             <input type="range" min="1" max="24" value={months}
-              onChange={e => set("months", parseInt(e.target.value))}
+              onChange={e => set("months", Number.parseInt(e.target.value))}
               style={{ background: "var(--surface3)", borderRadius: 8, border: "none", height: 6, cursor: "pointer", padding: 0, appearance: "none" }} />
           </div>
           <div className="form-group">
-            <label>Monthly Interest Rate (%)</label>
-            <input type="number" step="0.1" value={interest}
-              onChange={e => set("interest", parseFloat(e.target.value) || 0)} />
+            <label htmlFor="interest">Monthly Interest Rate (%)</label>
+            <input id="interest" type="number" step="0.1" value={interest}
+              onChange={e => set("interest", Number.parseFloat(e.target.value) || 0)} />
           </div>
           <div className="form-group">
-            <label>Savings Goal ($)</label>
-            <input type="number" value={goalTarget}
-              onChange={e => set("goalTarget", parseFloat(e.target.value) || 0)} />
+            <label htmlFor="goalTarget">Savings Goal ($)</label>
+            <input id="goalTarget" type="number" value={goalTarget}
+              onChange={e => set("goalTarget", Number.parseFloat(e.target.value) || 0)} />
           </div>
           <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 8, lineHeight: 1.5 }}>
             Enter your current savings balance and how much you plan to set aside each month.
@@ -137,9 +137,9 @@ export default function Savings() {
             { label: "Projected Balance", value: "$" + finalAmount.toLocaleString(), color: "var(--accent)",  sub: "In " + months + " months"},
             { label: "Total Contributed", value: "$" + (monthlyContrib * months).toLocaleString(), color: "var(--accent4)", sub: "From monthly savings"},
             { label: "Interest Earned", value: "$" + Math.max(0, finalAmount - currentSaved - monthlyContrib * months).toFixed(0), color: "var(--accent2)", sub: "At " + interest + "%/mo"},
-            { label: "Months to Goal", value: monthsToGoal !== null ? monthsToGoal + " months" : "Increase savings", color: monthsToGoal !== null ? "var(--accent5)" : "var(--danger)", sub: "Target: $" + goalTarget.toLocaleString()},
-          ].map((s, i) => (
-            <div key={i} className="card" style={{ padding: 18 }}>
+            { label: "Months to Goal", value: monthsToGoal === null ? "Increase savings" : monthsToGoal + " months", color: monthsToGoal === null ? "var(--danger)" : "var(--accent5)", sub: "Target: $" + goalTarget.toLocaleString()},
+          ].map((s) => (
+            <div key={s.label} className="card" style={{ padding: 18 }}>
               <div className="stat-label">{s.label}</div>
               <div className="stat-value mono" style={{ color: s.color, fontSize: "1.4rem" }}>{s.value}</div>
               <div className="stat-sub">{s.sub}</div>
@@ -187,7 +187,7 @@ export default function Savings() {
         ) : (
           <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
             {rolloverCumulative.map((m, i) => (
-              <div key={i} className="card-sm" style={{ minWidth: 130, flexShrink: 0 }}>
+              <div key={m.month + "-" + i} className="card-sm" style={{ minWidth: 130, flexShrink: 0 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", marginBottom: 8 }}>{m.month}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>

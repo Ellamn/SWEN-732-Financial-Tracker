@@ -23,11 +23,11 @@ export default function Sidebar({ activePage, setActivePage }) {
   // read the balance from localStorage, updated by Dashboard.jsx when user edits it
   const [balance, setBalance] = useState(0);
   useEffect(() => {
-    const stored = parseFloat(localStorage.getItem(`balance_${userId}`) || "0");
+    const stored = Number.parseFloat(localStorage.getItem(`balance_${userId}`) || "0");
     setBalance(stored);
     // poll for changes every 2 seconds for cross-component sync 
     const interval = setInterval(() => {
-      const latest = parseFloat(localStorage.getItem(`balance_${userId}`) || "0");
+      const latest = Number.parseFloat(localStorage.getItem(`balance_${userId}`) || "0");
       setBalance(latest);
     }, 2000);
     return () => clearInterval(interval);
@@ -73,3 +73,8 @@ export default function Sidebar({ activePage, setActivePage }) {
     </aside>
   );
 }
+
+Sidebar.propTypes = {
+  activePage: PropTypes.string.isRequired,
+  setActivePage: PropTypes.func.isRequired,
+};

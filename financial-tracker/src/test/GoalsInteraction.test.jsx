@@ -41,7 +41,7 @@ vi.mock('../api', () => ({
  * Mock fetch for the addGoal function which uses raw fetch
  * instead of the API wrapper.
  */
-global.fetch = vi.fn().mockResolvedValue({
+globalThis.fetch = vi.fn().mockResolvedValue({
   ok: true,
   json: () => Promise.resolve({ goal_id: 'new-goal' }),
 });
@@ -141,7 +141,7 @@ describe('Goals Interactions', () => {
     fireEvent.click(screen.getByText('Create Goal'));
     
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalled();
+      expect(globalThis.fetch).toHaveBeenCalled();
     });
   });
 
