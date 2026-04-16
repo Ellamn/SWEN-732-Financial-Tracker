@@ -2,6 +2,10 @@ const BASE = "http://localhost:5000";
 
 // build request body 
 async function req(method, path, body = null, params = null) {
+    // guard against tainted path segments being spliced into the URL
+    if (typeof path !== "string" || !/^\/[a-zA-Z0-9/_\-.]*$/.test(path)) {
+        throw new Error(`Invalid request path: ${path}`);
+    }
     let url = `${BASE}${path}`;
 
     if (params) {
