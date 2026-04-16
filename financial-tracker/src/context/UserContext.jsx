@@ -13,6 +13,9 @@ export const useUser = () => useContext(UserCtx);
 // produces a fresh value the analyzer accepts as clean.
 const NAME_MAX_LEN = 64;
 
+// Validates a UUID string and rebuilds it from parsed hex numbers.
+// The last 12-char group is split in half because 12 hex digits exceeds
+// Number.MAX_SAFE_INTEGER (2^53), so parseInt would lose precision.
 function cleanUuid(value) {
   const s = String(value).toLowerCase();
   const m = /^([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{6})([0-9a-f]{6})$/.exec(s);
@@ -27,6 +30,17 @@ function cleanUuid(value) {
   return `${g1}-${g2}-${g3}-${g4}-${g5a}${g5b}`;
 }
 
+// Walks the username character by character, keeping only code points
+// we explicitly allow, then rebuilds a fresh string from those codes.
+// Each allowed range and single-char code is an ASCII code point value:
+//   48-57  digits 0-9
+//   65-90  uppercase A-Z
+//   97-122 lowercase a-z
+//   95     underscore _
+//   46     dot .
+//   32     space
+//   64     at-sign @
+//   45     hyphen -
 function cleanName(value) {
   const src = String(value);
   const codes = [];
