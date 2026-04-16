@@ -33,7 +33,7 @@ function cleanName(value) {
   const src = String(value);
   const codes = [];
   for (let i = 0; i < src.length && codes.length < NAME_MAX_LEN; i++) {
-    const code = src.charCodeAt(i);
+    const code = src.codePointAt(i);
     // allow: 0-9 (48-57), A-Z (65-90), a-z (97-122), _ (95), . (46), space (32), @ (64), - (45)
     if ((code >= 48 && code <= 57) ||
         (code >= 65 && code <= 90) ||
@@ -43,7 +43,7 @@ function cleanName(value) {
     }
   }
   if (codes.length === 0) return null;
-  return String.fromCharCode(...codes);
+  return String.fromCodePoint(...codes);
 }
 
 function storeCredentials(id, name) {
