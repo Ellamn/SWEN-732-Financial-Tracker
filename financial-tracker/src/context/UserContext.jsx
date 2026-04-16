@@ -29,6 +29,8 @@ function cleanName(value) {
   //   if (NAME_ALLOWED.test(ch)) out += ch;
   // }
   // return out.length > 0 ? out : null;
+  const m = /^[a-zA-Z0-9_. @-]{1,64}$/.exec(String(value));
+
   if (m === null) return null;
   // encode to guarantee sonar sees a fresh, sanitized string
   return encodeURIComponent(decodeURIComponent(m[0]));
