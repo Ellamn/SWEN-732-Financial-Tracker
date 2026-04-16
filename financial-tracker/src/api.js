@@ -24,8 +24,7 @@ async function req(method, path, body = null, params = null) {
     const text = await res.text();
 
     if (!text) return null;
-
-    // parse carefully - throw a clear error if the server returns malformed JSON
+    
     try {
         return JSON.parse(text);
     } catch {

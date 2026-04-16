@@ -13,9 +13,7 @@ import rateIcon from "../assets/rate.svg";
 
 const CAT_COLORS = ["#7c52c8","#3bafc8","#b5155e","#5564c0","#a040a0","#0e7c6e","#e07b39","#2a7abf"];
 
-// Use Intl.DateTimeFormat so month names respect the user's locale automatically
-const getMonthName = (monthIndex) =>
-  new Intl.DateTimeFormat(undefined, { month: "short" }).format(new Date(2000, monthIndex, 1));
+const getMonthName = (monthIndex) => new Intl.DateTimeFormat(undefined, { month: "short" }).format(new Date(2000, monthIndex, 1));
 
 function loadIds(userId) {
   try { return JSON.parse(localStorage.getItem(`txIds_${userId}`) || "[]"); }
@@ -40,7 +38,7 @@ const CustomTooltip = ({ active, payload }) => {
     return (
       <div className="chart-tooltip">
         <div className="tooltip-title">{payload[0].name}</div>
-        <div className="tooltip-value" style={{ color: payload[0].payload.color || "#7c52c8" }}>
+        <div className="tooltip-value" style={{ color: payload[0].payload.color || "#7c52c8"}}>
           ${payload[0].value.toFixed(2)}
         </div>
       </div>
@@ -107,7 +105,7 @@ function StatCard({ icon, label, value, sub, color, bg }) {
         <img src={icon} className="stat-icon" alt="" />
         <div className="stat-label">{label}</div>
       </div>
-      <div className="stat-value stat-value-large" style={{ color }}>{value}</div>
+      <div className="stat-value stat-value-large" style={{color}}>{value}</div>
       <div className="stat-sub">{sub}</div>
     </div>
   );
@@ -280,7 +278,7 @@ export default function Dashboard() {
         </div>
         {!editingBalance && (
           <button className="btn btn-ghost balance-update-btn" onClick={() => { setTempBalance(balance); setEditingBalance(true); }}>
-            <img src={editIcon} className="btn-icon" alt="" />{" "}
+            <img src={editIcon} className="btn-icon" alt="" />
             Update Balance
           </button>
         )}
@@ -297,14 +295,14 @@ export default function Dashboard() {
       )}
 
       {loading ? (
-        <div style={{ color: "var(--text-muted)", marginBottom: 24 }}>Loading transactions...</div>
+        <div style={{ color: "var(--text-muted)", marginBottom: 24 }}>Loading transactions…</div>
       ) : (
         <>
           <div className="grid-4 stats-grid">
-            <StatCard icon={incomeIcon}  label="Monthly Income"    value={`$${monthlyIncome.toLocaleString("en-US",{maximumFractionDigits:0})}`}   sub="This month"      color="var(--success)"  bg="var(--success-fill)" />
-            <StatCard icon={expenseIcon} label="Monthly Expenses"  value={`$${monthlyExpenses.toLocaleString("en-US",{maximumFractionDigits:0})}`}  sub="This month"      color="var(--danger)"   bg="var(--danger-fill)"  />
-            <StatCard icon={savingsIcon} label="Net Savings"       value={`$${netSavings.toLocaleString("en-US",{maximumFractionDigits:0})}`}        sub="This month"      color="var(--accent)"   bg="var(--surface2)"     />
-            <StatCard icon={rateIcon}    label="Savings Rate"      value={`${savingsRate}%`}                                                          sub="Of income saved" color="var(--accent4)"  bg="#eef0fb"             />
+            <StatCard icon={incomeIcon} label="Monthly Income" value={`$${monthlyIncome.toLocaleString("en-US",{maximumFractionDigits:0})}`} sub="This month" color="var(--success)" bg="var(--success-fill)"/>
+            <StatCard icon={expenseIcon} label="Monthly Expenses" value={`$${monthlyExpenses.toLocaleString("en-US",{maximumFractionDigits:0})}`} sub="This month" color="var(--danger)" bg="var(--danger-fill)"/>
+            <StatCard icon={savingsIcon} label="Net Savings" value={`$${netSavings.toLocaleString("en-US",{maximumFractionDigits:0})}`} sub="This month" color="var(--accent)" bg="var(--surface2)"/>
+            <StatCard icon={rateIcon} label="Savings Rate" value={`${savingsRate}%`} sub="Of income saved" color="var(--accent4)" bg="#eef0fb"/>
           </div>
 
           {(categoryPieData.length > 0 || incomePieData.length > 0) && (
@@ -328,9 +326,9 @@ export default function Dashboard() {
                 <XAxis dataKey="month" tick={{ fill: "#6b5c8a", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "#6b5c8a", fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={v => `$${v}`} />
                 <Tooltip content={<BarTooltip />} />
-                <Bar dataKey="income"   name="Income"   fill="#3bafc8" radius={[4,4,0,0]} />
+                <Bar dataKey="income" name="Income" fill="#3bafc8" radius={[4,4,0,0]} />
                 <Bar dataKey="expenses" name="Expenses" fill="#b5155e" radius={[4,4,0,0]} />
-                <Bar dataKey="savings"  name="Savings"  fill="#7c52c8" radius={[4,4,0,0]} />
+                <Bar dataKey="savings" name="Savings" fill="#7c52c8" radius={[4,4,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

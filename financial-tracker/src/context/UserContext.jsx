@@ -5,7 +5,7 @@ import { getUserByName, createUser } from "../api";
 const UserCtx = createContext(null);
 export const useUser = () => useContext(UserCtx);
 
-// sanitize values before writing to localStorage to prevent tainted data storage
+// sanitize values before writing to localStorage 
 function sanitize(value) {
   return String(value).replace(/[^a-zA-Z0-9\-_. @]/g, "");
 }
@@ -13,11 +13,11 @@ function sanitize(value) {
 export function UserProvider({ children }) {
 
   // bit of a cheat, userId in localStorage so you don't have to login every time you refresh 
-  const [userId,     setUserId]     = useState(() => localStorage.getItem("userId") || null);
-  const [username,   setUsername]   = useState(() => localStorage.getItem("username") || "");
+  const [userId, setUserId] = useState(() => localStorage.getItem("userId") || null);
+  const [username, setUsername] = useState(() => localStorage.getItem("username") || "");
   const [loginInput, setLoginInput] = useState("");
-  const [error,      setError]      = useState("");
-  const [loading,    setLoading]    = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const login = async () => {
     if (!loginInput.trim()) return;
@@ -26,7 +26,7 @@ export function UserProvider({ children }) {
     try {
       // for existing user 
       const user = await getUserByName(loginInput.trim());
-      localStorage.setItem("userId",   sanitize(user.id));
+      localStorage.setItem("userId", sanitize(user.id));
       localStorage.setItem("username", sanitize(user.name));
       setUserId(user.id);
       setUsername(user.name);
