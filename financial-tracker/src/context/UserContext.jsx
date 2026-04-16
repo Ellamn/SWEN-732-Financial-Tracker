@@ -5,9 +5,39 @@ import { getUserByName, createUser } from "../api";
 const UserCtx = createContext(null);
 export const useUser = () => useContext(UserCtx);
 
-// sanitize values before writing to localStorage 
-function sanitize(value) {
-  return String(value).replace(/[^a-zA-Z0-9\-_. @]/g, "");
+// // sanitize values before writing to localStorage 
+// function sanitize(value) {
+//   return String(value).replace(/[^a-zA-Z0-9\-_. @]/g, "");
+// }
+// rebuild values from regex matches instead of passing API responses through,
+// so the taint chain from fetch -> localStorage is broken
+const UUID_GROUPS = /^([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{12})$/i;
+const NAME_ALLOWED = /[a-zA-Z0-9_. @-]/;
+const NAME_MAX_LEN = 64;
+
+function cleanUuid(value) {
+  const m = UUID_GROUPS.exec(String(value).toLowerCase());
+  if (m === null) return null;
+  return `${m[1]}-${m[2]}-${m[3]}-${m[4]}-${m[5]}`;
+}
+
+function cleanName(value) {
+  const src = String(value);
+  let out = "";
+  for (let i = 0; i < src.length && out.length < NAME_MAX_LEN; i++) {
+    const ch = src.charAt(i);
+    if (NAME_ALLOWED.test(ch)) out += ch;
+  }
+  return out.length > 0 ? out : null;
+}
+
+function storeCredentials(id, name) {
+  const safeId = cleanUuid(id);
+  const safeName = cleanName(name);
+  if (safeId === null || safeName === null) return false;
+  localStorage.setItem("userId", safeId);
+  localStorage.setItem("username", safeName);
+  return true;
 }
 
 export function UserProvider({ children }) {
@@ -26,18 +56,22 @@ export function UserProvider({ children }) {
     try {
       // for existing user 
       const user = await getUserByName(loginInput.trim());
-      localStorage.setItem("userId", sanitize(user.id));
-      localStorage.setItem("username", sanitize(user.name));
-      setUserId(user.id);
-      setUsername(user.name);
+      if (storeCredentials(user.id, user.name)) {
+        setUserId(user.id);
+        setUsername(user.name);
+      } else {
+        setError("Server returned an unexpected user format.");
+      }
     } catch {
       // user doesn't exist, make a new one 
       try {
         const newUser = await createUser(loginInput.trim());
-        localStorage.setItem("userId",   sanitize(newUser.id));
-        localStorage.setItem("username", sanitize(newUser.name));
-        setUserId(newUser.id);
-        setUsername(newUser.name);
+        if (storeCredentials(newUser.id, newUser.name)) {
+          setUserId(newUser.id);
+          setUsername(newUser.name);
+        } else {
+          setError("Server returned an unexpected user format.");
+        }
       } catch {
         setError("Could not connect to server. Check if Flask API is running.");
       }
