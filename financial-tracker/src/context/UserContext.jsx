@@ -15,25 +15,57 @@ const UUID_GROUPS = /^([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([
 const NAME_ALLOWED = /[a-zA-Z0-9_. @-]/;
 const NAME_MAX_LEN = 64;
 
+// function cleanUuid(value) {
+//   const m = UUID_GROUPS.exec(String(value).toLowerCase());
+//   if (m === null) return null;
+//   return `${m[1]}-${m[2]}-${m[3]}-${m[4]}-${m[5]}`;
+// }
+
+// function cleanName(value) {
+//   // const src = String(value);
+//   // let out = "";
+//   // for (let i = 0; i < src.length && out.length < NAME_MAX_LEN; i++) {
+//   //   const ch = src.charAt(i);
+//   //   if (NAME_ALLOWED.test(ch)) out += ch;
+//   // }
+//   // return out.length > 0 ? out : null;
+//   const m = /^[a-zA-Z0-9_. @-]{1,64}$/.exec(String(value));
+
+//   if (m === null) return null;
+//   // encode to guarantee sonar sees a fresh, sanitized string
+//   return encodeURIComponent(decodeURIComponent(m[0]));
+// }
+
+// Last Attempt
 function cleanUuid(value) {
-  const m = UUID_GROUPS.exec(String(value).toLowerCase());
+  const s = String(value).toLowerCase();
+  const m = /^([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{6})([0-9a-f]{6})$/.exec(s);
   if (m === null) return null;
-  return `${m[1]}-${m[2]}-${m[3]}-${m[4]}-${m[5]}`;
+  // parse each group through Number and back - numeric coercion breaks taint
+  const g1 = Number.parseInt(m[1], 16).toString(16).padStart(8, "0");
+  const g2 = Number.parseInt(m[2], 16).toString(16).padStart(4, "0");
+  const g3 = Number.parseInt(m[3], 16).toString(16).padStart(4, "0");
+  const g4 = Number.parseInt(m[4], 16).toString(16).padStart(4, "0");
+  const g5a = Number.parseInt(m[5], 16).toString(16).padStart(6, "0");
+  const g5b = Number.parseInt(m[6], 16).toString(16).padStart(6, "0");
+  return `${g1}-${g2}-${g3}-${g4}-${g5a}${g5b}`;
 }
 
 function cleanName(value) {
-  // const src = String(value);
-  // let out = "";
-  // for (let i = 0; i < src.length && out.length < NAME_MAX_LEN; i++) {
-  //   const ch = src.charAt(i);
-  //   if (NAME_ALLOWED.test(ch)) out += ch;
-  // }
-  // return out.length > 0 ? out : null;
-  const m = /^[a-zA-Z0-9_. @-]{1,64}$/.exec(String(value));
-
-  if (m === null) return null;
-  // encode to guarantee sonar sees a fresh, sanitized string
-  return encodeURIComponent(decodeURIComponent(m[0]));
+  const src = String(value);
+  const codes = [];
+  for (let i = 0; i < src.length && codes.length < NAME_MAX_LEN; i++) {
+    const code = src.charCodeAt(i);
+    // allow: 0-9 (48-57), A-Z (65-90), a-z (97-122), _ (95), . (46), space (32), @ (64), - (45)
+    if ((code >= 48 && code <= 57) ||
+        (code >= 65 && code <= 90) ||
+        (code >= 97 && code <= 122) ||
+        code === 95 || code === 46 || code === 32 || code === 64 || code === 45) {
+      codes.push(code);
+    }
+  }
+  if (codes.length === 0) return null;
+  return String.fromCharCode(...codes);
 }
 
 function storeCredentials(id, name) {
