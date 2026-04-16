@@ -15,28 +15,6 @@ const UUID_GROUPS = /^([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([
 const NAME_ALLOWED = /[a-zA-Z0-9_. @-]/;
 const NAME_MAX_LEN = 64;
 
-// function cleanUuid(value) {
-//   const m = UUID_GROUPS.exec(String(value).toLowerCase());
-//   if (m === null) return null;
-//   return `${m[1]}-${m[2]}-${m[3]}-${m[4]}-${m[5]}`;
-// }
-
-// function cleanName(value) {
-//   // const src = String(value);
-//   // let out = "";
-//   // for (let i = 0; i < src.length && out.length < NAME_MAX_LEN; i++) {
-//   //   const ch = src.charAt(i);
-//   //   if (NAME_ALLOWED.test(ch)) out += ch;
-//   // }
-//   // return out.length > 0 ? out : null;
-//   const m = /^[a-zA-Z0-9_. @-]{1,64}$/.exec(String(value));
-
-//   if (m === null) return null;
-//   // encode to guarantee sonar sees a fresh, sanitized string
-//   return encodeURIComponent(decodeURIComponent(m[0]));
-// }
-
-// Last Attempt
 function cleanUuid(value) {
   const s = String(value).toLowerCase();
   const m = /^([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{6})([0-9a-f]{6})$/.exec(s);
