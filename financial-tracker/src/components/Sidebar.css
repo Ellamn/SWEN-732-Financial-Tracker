@@ -9,14 +9,6 @@
   z-index: 100;
 }
 
-.sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 28px 24px 24px;
-  border-bottom: 1px solid rgba(151,117,210,0.2);
-}
-
 .brand-icon {
   width: 40px;
   height: 40px;

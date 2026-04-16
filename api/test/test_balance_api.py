@@ -1,5 +1,6 @@
 from database.src import db_utils
-from test_utils import *
+from test_utils import get_rest_call, post_rest_call, put_rest_call, delete_rest_call
+import pytest 
 
 
 BASE = 'http://127.0.0.1:5000/balance/'
@@ -17,7 +18,7 @@ def test_create_balance_event(one_user):
 
     assert (
         result['name'] == 'Paycheck' and
-        result['amount'] == 1500.00
+        result['amount'] == pytest.approx(1500.00) 
     ), "Incorrect post return"
     assert 'event_id' in result, "Did not return balance event id"
 

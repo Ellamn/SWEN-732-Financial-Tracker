@@ -42,7 +42,7 @@ vi.mock('../api', () => ({
  * Mock fetch for the seedDefaults function which uses raw fetch
  * instead of the API wrapper.
  */
-global.fetch = vi.fn().mockResolvedValue({
+globalThis.fetch = vi.fn().mockResolvedValue({
   ok: true,
   json: () => Promise.resolve({ category_id: 'new-cat' }),
 });

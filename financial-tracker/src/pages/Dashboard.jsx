@@ -1,5 +1,6 @@
 import "./Dashboard.css";
 import { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useUser } from "../context/UserContext";
 
@@ -25,7 +26,7 @@ function loadBudgets(userId) {
 }
 
 function loadBalance(userId) {
-  return parseFloat(localStorage.getItem(`balance_${userId}`) || "0");
+  return Number.parseFloat(localStorage.getItem(`balance_${userId}`) || "0");
 }
 
 function saveBalance(userId, val) {
@@ -33,7 +34,7 @@ function saveBalance(userId, val) {
 }
 
 const CustomTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
+  if (active && payload?.length) {
     return (
       <div className="chart-tooltip">
         <div className="tooltip-title">{payload[0].name}</div>
@@ -44,6 +45,57 @@ const CustomTooltip = ({ active, payload }) => {
     );
   }
   return null;
+};
+
+CustomTooltip.propTypes = {
+  active:  PropTypes.bool,
+  payload: PropTypes.arrayOf(
+    PropTypes.shape({
+      name:    PropTypes.string,
+      value:   PropTypes.number,
+      payload: PropTypes.shape({
+        color: PropTypes.string,
+      }),
+    })
+  ),
+};
+
+CustomTooltip.defaultProps = {
+  active:  false,
+  payload: [],
+};
+
+const BarTooltip = ({ active, payload, label }) => {
+  if (!active || !payload) return null;
+  return (
+    <div className="chart-tooltip">
+      <div className="bar-tooltip-title">{label}</div>
+      {payload.map((p) => (
+        <div key={p.dataKey} className="tooltip-value" style={{ color: p.fill }}>
+          {p.name}: ${p.value}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+BarTooltip.propTypes = {
+  active:  PropTypes.bool,
+  label:   PropTypes.string,
+  payload: PropTypes.arrayOf(
+    PropTypes.shape({
+      dataKey: PropTypes.string,
+      name:    PropTypes.string,
+      value:   PropTypes.number,
+      fill:    PropTypes.string,
+    })
+  ),
+};
+
+BarTooltip.defaultProps = {
+  active:  false,
+  label:   "",
+  payload: [],
 };
 
 function StatCard({ icon, label, value, sub, color, bg }) {
@@ -59,6 +111,15 @@ function StatCard({ icon, label, value, sub, color, bg }) {
   );
 }
 
+StatCard.propTypes = {
+  icon:  PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  sub:   PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
+  bg:    PropTypes.string.isRequired,
+};
+
 function PieSection({ title, data }) {
   return (
     <div className="card">
@@ -67,14 +128,14 @@ function PieSection({ title, data }) {
         <ResponsiveContainer width={200} height={200}>
           <PieChart>
             <Pie data={data} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3}>
-              {data.map((c, i) => <Cell key={i} fill={c.color} />)}
+              {data.map((c) => <Cell key={c.color} fill={c.color} />)}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
           </PieChart>
         </ResponsiveContainer>
         <div className="chart-legend">
-          {data.map((c, i) => (
-            <div key={i} className="legend-item">
+          {data.map((c) => (
+            <div key={c.name} className="legend-item">
               <div className="legend-color" style={{ background: c.color }} />
               <span className="legend-label">{c.name}</span>
               <span className="mono legend-value">${c.value.toFixed(2)}</span>
@@ -85,6 +146,17 @@ function PieSection({ title, data }) {
     </div>
   );
 }
+
+PieSection.propTypes = {
+  title: PropTypes.string.isRequired,
+  data:  PropTypes.arrayOf(
+    PropTypes.shape({
+      name:  PropTypes.string.isRequired,
+      value: PropTypes.number.isRequired,
+      color: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+};
 
 export default function Dashboard() {
   const { userId } = useUser();
@@ -123,7 +195,7 @@ export default function Dashboard() {
   }, [userId]);
 
   useEffect(() => { fetchTx(); }, [fetchTx]);
- 
+
   const now = new Date();
   const curMonth = now.getMonth();
   const curYear = now.getFullYear();
@@ -142,26 +214,22 @@ export default function Dashboard() {
   const overBudget = Object.entries(budgetMap).filter(([name, { value, budget }]) => value > budget).map(([name, { value, budget }]) => ({ name, value, budget }));
 
   const expensesByCategory = {};
-
   thisMonth.filter(t => t.amount < 0).forEach(t => {
     expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + Math.abs(t.amount);
   });
-
   const categoryPieData = Object.entries(expensesByCategory).map(([name, value], i) => ({
     name, value, color: CAT_COLORS[i % CAT_COLORS.length],
   }));
- 
-  const incomeByCategory = {};
 
+  const incomeByCategory = {};
   thisMonth.filter(t => t.amount > 0).forEach(t => {
     incomeByCategory[t.category] = (incomeByCategory[t.category] || 0) + t.amount;
   });
-
   const incomePieData = Object.entries(incomeByCategory).map(([name, value], i) => ({
     name, value, color: CAT_COLORS[i % CAT_COLORS.length],
   }));
 
-  // monthly rollover for the last six months 
+  // monthly rollover for the last six months
   const monthlyRollover = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(curYear, curMonth - 5 + i, 1);
     const m = d.getMonth();
@@ -195,7 +263,7 @@ export default function Dashboard() {
               <input className="balance-input" type="number" value={tempBalance}
                 onChange={e => setTempBalance(e.target.value)} />
               <button className="btn btn-primary" onClick={() => {
-                const v = parseFloat(tempBalance);
+                const v = Number.parseFloat(tempBalance);
                 setBalance(v);
                 saveBalance(userId, v);
                 setEditingBalance(false);
@@ -204,7 +272,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="stat-value mono balance-value">
-              ${parseFloat(balance).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+              ${Number.parseFloat(balance).toLocaleString("en-US", { minimumFractionDigits: 2 })}
             </div>
           )}
         </div>
@@ -257,14 +325,7 @@ export default function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(183,149,228,0.08)" vertical={false} />
                 <XAxis dataKey="month" tick={{ fill: "#6b5c8a", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "#6b5c8a", fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={v => `$${v}`} />
-                <Tooltip content={({ active, payload, label }) => active && payload ? (
-                  <div className="chart-tooltip">
-                    <div className="bar-tooltip-title">{label}</div>
-                    {payload.map((p, i) => (
-                      <div key={i} className="tooltip-value" style={{ color: p.fill }}>{p.name}: ${p.value}</div>
-                    ))}
-                  </div>
-                ) : null} />
+                <Tooltip content={<BarTooltip />} />
                 <Bar dataKey="income" name="Income" fill="#3bafc8" radius={[4,4,0,0]} />
                 <Bar dataKey="expenses" name="Expenses" fill="#b5155e" radius={[4,4,0,0]} />
                 <Bar dataKey="savings" name="Savings" fill="#7c52c8" radius={[4,4,0,0]} />

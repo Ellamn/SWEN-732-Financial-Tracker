@@ -1,6 +1,6 @@
 # SWEN-732-Financial-Tracker
 
-[![codecov](https://codecov.io/gh/Ellamn/SWEN-732-Financial-Tracker/branch/main/graph/badge.svg)](https://codecov.io/gh/Ellamn/SWEN-732-Financial-Tracker) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![codecov](https://codecov.io/gh/Ellamn/SWEN-732-Financial-Tracker/branch/main/graph/badge.svg)](https://codecov.io/gh/Ellamn/SWEN-732-Financial-Tracker) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Ellamn_SWEN-732-Financial-Tracker&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Ellamn_SWEN-732-Financial-Tracker)
 
 ## Project Overview 
 FinTrack is a finance tracker built for students to help them manage thier personal finances. It offers users a lot of flexibility in logging their income, expenses, savings goals, and budget. Data is stored in PostgreSQL and exposed in a Flask RESTful API, and the frontend is built through React. 

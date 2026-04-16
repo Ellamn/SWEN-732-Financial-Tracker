@@ -4,6 +4,8 @@ from database.src import database as db
 
 users_bp = Blueprint("users",__name__,url_prefix="/users")
 
+NOT_FOUND = "User not found"
+
 
 @users_bp.route('/', methods=["GET"])
 def get_users():
@@ -22,13 +24,13 @@ def get_users():
             user = db.get_user_with_name(name)
             return jsonify({"id": str(user.user_id), "name": user.name}), 200
         except Exception:
-            return jsonify({"error": "User not found"}), 404
+            return jsonify({"error": NOT_FOUND}), 404
     elif user_id:
         try:
             user = db.get_user_with_uuid(user_id)
             return jsonify({"id": str(user.user_id), "name": user.name}), 200
         except Exception:
-            return jsonify({"error": "User not found"}), 404
+            return jsonify({"error": NOT_FOUND}), 404
     else:
         return jsonify({"error": "Provide 'name' or 'id' query parameter"}), 400
 
@@ -50,8 +52,8 @@ def put_users(user_id):
     try:
         db.update_user(user_id, request.args['name'])
         return jsonify({"message": "Updated"}), 200
-    except:
-        return jsonify({"error": "User not found"}), 404
+    except Exception:
+        return jsonify({"error": NOT_FOUND}), 404
 
 
 @users_bp.route('/', methods=["POST"])
@@ -83,6 +85,6 @@ def delete_users(user_id):
     try:
         db.delete_user(user_id)
         return jsonify({"message": "Deleted"}), 200
-    except:
-        return jsonify({"error": "User not found"}), 404
+    except Exception:
+        return jsonify({"error": NOT_FOUND}), 404
 

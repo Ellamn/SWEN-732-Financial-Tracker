@@ -38,7 +38,7 @@ def get_expenses(expense_id: UUID):
     try:
         expense = db.get_expense_category(expense_id)
         return jsonify(expense.__dict__)
-    except:
+    except Exception:
         return jsonify({"error": f"Balance event {expense_id} not found"}), 404
 
 
@@ -59,7 +59,7 @@ def put_expenses(expense_id: UUID):
     try:
         db.update_expense_category(expense_id, request.args['name'])
         return jsonify({"message": "Updated"}), 200
-    except:
+    except Exception:
         return jsonify({"error": f"Expense category {expense_id} not found"}), 404
 
 
@@ -105,5 +105,5 @@ def delete_expenses(expense_id):
     try:
         db.delete_expense_category(expense_id)
         return jsonify({"message": "Deleted"}), 200
-    except:
+    except Exception:
         return jsonify({"error": f"Expense category {expense_id} not found"}), 404
