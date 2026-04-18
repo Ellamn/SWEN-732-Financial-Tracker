@@ -1,7 +1,7 @@
 {
-  "name": "financial-tracker",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@ellamn/financial-tracker",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
   },
   "dependencies": {
     "prop-types": "^15.8.1",
