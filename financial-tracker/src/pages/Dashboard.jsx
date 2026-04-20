@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useUser } from "../context/UserContext";
+import { getBalancesByOwner, getExpenseCategoriesByOwner } from "../api";
 
 import warningIcon from "../assets/warning.svg";
 import editIcon from "../assets/edit.svg";
@@ -15,9 +16,17 @@ const CAT_COLORS = ["#7c52c8","#3bafc8","#b5155e","#5564c0","#a040a0","#0e7c6e",
 
 const getMonthName = (monthIndex) => new Intl.DateTimeFormat(undefined, { month: "short" }).format(new Date(2000, monthIndex, 1));
 
-function loadIds(userId) {
-  try { return JSON.parse(localStorage.getItem(`txIds_${userId}`) || "[]"); }
-  catch { return []; }
+// Best-effort category for a balance event: match the event's name against the user's
+// expense category names (case-insensitive substring match). Falls back to "Other".
+function categorizeTx(name, categoryNames) {
+  if (!name) {
+    return "Other";
+  }
+
+  const lower = name.toLowerCase();
+  const hit = categoryNames.find(c => lower.includes(c.toLowerCase()));
+
+  return hit || "Other";
 }
 
 function loadBudgets(userId) {
@@ -169,28 +178,24 @@ export default function Dashboard() {
 
   const fetchTx = useCallback(async () => {
     setLoading(true);
-    const ids = loadIds(userId);
-    const results = await Promise.allSettled(
-      ids.map(({ id }) =>
-        fetch(`http://localhost:5000/balance/${id}`).then(r => r.ok ? r.json() : null)
-      )
-    );
-    const loaded = results
-      .map((r, i) => {
-        if (r.status !== "fulfilled" || !r.value) return null;
-        const ev = r.value;
-        const meta = ids[i];
-        return {
-          id: ev.event_id,
-          name: ev.name,
-          amount: ev.amount / 100,
-          date: ev.date,
-          category: meta.category || "Other",
-          type: ev.amount >= 0 ? "income" : "expense",
-        };
-      })
-      .filter(Boolean);
-    setTransactions(loaded);
+    try {
+      const [events, categories] = await Promise.all([
+        getBalancesByOwner(userId),
+        getExpenseCategoriesByOwner(userId).catch(() => []),
+      ]);
+      const categoryNames = (categories || []).map(c => c.name);
+      const loaded = (events || []).map(ev => ({
+        id: ev.event_id,
+        name: ev.name,
+        amount: ev.amount / 100,
+        date: ev.date,
+        category: categorizeTx(ev.name, categoryNames),
+        type: ev.amount >= 0 ? "income" : "expense",
+      }));
+      setTransactions(loaded);
+    } catch {
+      setTransactions([]);
+    }
     setLoading(false);
   }, [userId]);
 
