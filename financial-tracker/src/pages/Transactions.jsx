@@ -9,7 +9,7 @@ import {
 } from "../api";
 
 const DEFAULT_CATEGORIES = [
-  "Groceries", "Dining Out", "Rent", "Transport", "Entertainment",
+  "Paycheck", "Groceries", "Dining Out", "Rent", "Transport", "Entertainment",
   "Health", "Subscriptions", "Utilities", "Clothing", "Job",
   "Financial Aid", "Freelance", "Family", "Other",
 ];

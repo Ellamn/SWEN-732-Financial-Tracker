@@ -80,6 +80,7 @@ def seed_for_user(owner_id: UUID) -> None:
         "Transport",
         "Entertainment",
         "Utilities",
+        "Paycheck",
     ]
 
     category_ids: dict[str, UUID] = {}
@@ -166,7 +167,7 @@ def seed_for_user(owner_id: UUID) -> None:
                 name=name,
                 amount=amount,
                 date=d,
-                category_id=resolve_category(name) if amount < 0 else None,
+                category_id=resolve_category(name),
             )
         )
 
