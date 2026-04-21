@@ -17,7 +17,6 @@ export default defineConfig({
         'src/test/**',
       ],
       reporter: 'lcov',
-    },
-    outputFile: './test-report.junit.xml',
+    }
   },
 })
