@@ -1,6 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useUser } from "../context/UserContext";
-import { createBalanceEvent, deleteBalanceEvent, updateBalanceEvent, getBalancesByOwner} from "../api";
+import {
+  createBalanceEvent,
+  deleteBalanceEvent,
+  updateBalanceEvent,
+  getBalancesByOwner,
+  getExpenseCategoriesByOwner,
+} from "../api";
 
 const DEFAULT_CATEGORIES = [
   "Groceries", "Dining Out", "Rent", "Transport", "Entertainment",
@@ -12,6 +18,7 @@ export default function Transactions() {
   const { userId } = useUser();
 
   const [txList, setTxList] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter,setFilter] = useState("all");
@@ -29,16 +36,37 @@ export default function Transactions() {
   const [editId,   setEditId]   = useState(null);
   const [editForm, setEditForm] = useState({});
 
+  const nameToId = useMemo(() => {
+    const m = {};
+    for (const c of categories) {
+      m[c.name.toLowerCase()] = c.category_id;
+    }
+    return m;
+  }, [categories]);
+
+  // Categories to show in the form dropdown. Prefer the user's real expense
+  // categories (from the backend) and fall back to the default list so the page
+  // still works before any categories exist.
+  const categoryOptions = useMemo(() => {
+    const names = categories.length > 0
+      ? categories.map(c => c.name)
+      : DEFAULT_CATEGORIES.filter(n => n !== "Other");
+    return [...names, "Other"];
+  }, [categories]);
+
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
       const events = await getBalancesByOwner(userId);
-      const loaded = events.map(ev => ({
+      const loaded = (events || []).map(ev => ({
         id: ev.event_id,
         description: ev.name,
         amount: ev.amount / 100,
         date: ev.date,
-        category: "Other",
+        // Note: the readable category name is resolved in a derived useMemo
+        // below once categories have also loaded, so we just stash the id here.
+        category: null,
+        categoryId: ev.category_id || null,
         type: ev.amount >= 0 ? "income" : "expense",
       }));
       setTxList(loaded);
@@ -50,6 +78,20 @@ export default function Transactions() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  useEffect(() => {
+    let cancelled = false;
+    if (!getExpenseCategoriesByOwner) return undefined;
+    (async () => {
+      try {
+        const data = await getExpenseCategoriesByOwner(userId);
+        if (!cancelled) setCategories(data || []);
+      } catch {
+        if (!cancelled) setCategories([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [userId]);
+
   const addTransaction = async () => {
     if (!form.description || !form.amount) return;
     setSaving(true);
@@ -57,13 +99,15 @@ export default function Transactions() {
     try {
       const rawAmt = Number.parseFloat(form.amount);
       const signedAmt = form.type === "expense" ? -Math.abs(rawAmt) : Math.abs(rawAmt);
-      const event = await createBalanceEvent(userId, form.description, signedAmt, form.date);
+      const categoryId = nameToId[form.category.toLowerCase()] || null;
+      const event = await createBalanceEvent(userId, form.description, signedAmt, form.date, categoryId);
       setTxList(prev => [{
         id: event.event_id,
         description: form.description,
         amount: signedAmt,
         date: form.date,
         category: form.category,
+        categoryId,
         type: form.type,
       }, ...prev]);
       setShowAdd(false);
@@ -105,13 +149,15 @@ export default function Transactions() {
     try {
       const rawAmt = Number.parseFloat(editForm.amount) || 0;
       const signedAmt = editForm.type === "expense" ? -Math.abs(rawAmt) : Math.abs(rawAmt);
-      await updateBalanceEvent(id, editForm.description, signedAmt);
+      const categoryId = nameToId[(editForm.category || "").toLowerCase()] || null;
+      await updateBalanceEvent(id, editForm.description, signedAmt, categoryId);
       setTxList(prev => prev.map(t => t.id === id ? {
         ...t,
         description: editForm.description,
         amount: signedAmt,
         date: editForm.date,
         category: editForm.category,
+        categoryId,
         type: editForm.type,
       } : t));
       setEditId(null);
@@ -120,7 +166,19 @@ export default function Transactions() {
     }
   };
 
-  const filtered = txList.filter(t => {
+  // Attach a readable category name to each tx. Rows saved locally (create/edit)
+  // already carry the name; rows freshly loaded from the backend only carry a
+  // category_id, so we resolve it here against the loaded categories.
+  const displayTx = useMemo(() => {
+    const idToName = {};
+    for (const c of categories) idToName[c.category_id] = c.name;
+    return txList.map(t => ({
+      ...t,
+      category: t.category || idToName[t.categoryId] || "Other",
+    }));
+  }, [txList, categories]);
+
+  const filtered = displayTx.filter(t => {
     const typeOk = filter === "all" || t.type === filter;
     const catOk  = catFilter === "all" || t.category === catFilter;
     return typeOk && catOk;
@@ -157,7 +215,7 @@ export default function Transactions() {
             <div className="form-group">
               <label htmlFor="form-category">Category</label>
               <select id="form-category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
-                {DEFAULT_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                {categoryOptions.map(c => <option key={c}>{c}</option>)}
               </select>
             </div>
             <div className="form-group">
@@ -191,7 +249,7 @@ export default function Transactions() {
         <select value={catFilter} onChange={e => setCatFilter(e.target.value)}
           style={{ width: "auto", padding: "7px 12px", fontSize: 12 }}>
           <option value="all">All Categories</option>
-          {DEFAULT_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+          {categoryOptions.map(c => <option key={c}>{c}</option>)}
         </select>
       </div>
 
@@ -227,7 +285,7 @@ export default function Transactions() {
                         <select value={editForm.category}
                           onChange={e => setEditForm({ ...editForm, category: e.target.value })}
                           style={{ fontSize: 12, padding: "3px 6px" }}>
-                          {DEFAULT_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                          {categoryOptions.map(c => <option key={c}>{c}</option>)}
                         </select>
                       </td>
                       <td style={{ padding: "10px 12px" }}>

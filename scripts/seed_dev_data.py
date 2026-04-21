@@ -82,10 +82,13 @@ def seed_for_user(owner_id: UUID) -> None:
         "Utilities",
     ]
 
+    category_ids: dict[str, UUID] = {}
     for name in categories:
+        cid = uuid4()
         db.insert_expense_category(
-            ExpenseCategory(category_id=uuid4(), owner=owner_id, name=name)
+            ExpenseCategory(category_id=cid, owner=owner_id, name=name)
         )
+        category_ids[name] = cid
 
     db.insert_income_source(
         IncomeSource(
@@ -148,9 +151,23 @@ def seed_for_user(owner_id: UUID) -> None:
         ("Groceries, Costco run", -_cents(140.50), month_offset(1, 6)),
     ])
 
+    def resolve_category(description: str) -> UUID | None:
+        lower = description.lower()
+        for cname, cid in category_ids.items():
+            if cname.lower() in lower:
+                return cid
+        return None
+
     for name, amount, d in tx:
         db.insert_balance_event(
-            BalanceEvent(event_id=uuid4(), owner=owner_id, name=name, amount=amount, date=d)
+            BalanceEvent(
+                event_id=uuid4(),
+                owner=owner_id,
+                name=name,
+                amount=amount,
+                date=d,
+                category_id=resolve_category(name) if amount < 0 else None,
+            )
         )
 
     db.insert_budget_goal(

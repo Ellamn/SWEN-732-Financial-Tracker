@@ -59,8 +59,8 @@ def update_user(id: UUID, name: str):
 # MARK: Balance Events
 def insert_balance_event(event: BalanceEvent):
     sql = """
-          INSERT INTO balance_events (id, owner, name, amount, date)
-          VALUES (%(event_id)s, %(owner)s, %(name)s, %(amount)s, %(date)s)
+          INSERT INTO balance_events (id, owner, name, amount, date, category_id)
+          VALUES (%(event_id)s, %(owner)s, %(name)s, %(amount)s, %(date)s, %(category_id)s)
           ON CONFLICT DO NOTHING;
           """
 
@@ -68,32 +68,33 @@ def insert_balance_event(event: BalanceEvent):
 
 def get_balance_event(id: UUID) -> BalanceEvent:
     sql = """
-    SELECT id, owner, name, amount, date FROM balance_events WHERE id=%(id)s;
+    SELECT id, owner, name, amount, date, category_id FROM balance_events WHERE id=%(id)s;
     """
 
-    balance_event_dict = exec_get_one(sql, {"id": id})
-    return BalanceEvent(balance_event_dict[0], balance_event_dict[1], balance_event_dict[2], balance_event_dict[3], balance_event_dict[4])
+    row = exec_get_one(sql, {"id": id})
+    return BalanceEvent(row[0], row[1], row[2], row[3], row[4], row[5])
 
 def get_balance_events_by_owner(owner_id: UUID) -> list[BalanceEvent]:
     sql = """
-    SELECT id, owner, name, amount, date FROM balance_events WHERE owner=%(owner_id)s ORDER BY date DESC;
+    SELECT id, owner, name, amount, date, category_id FROM balance_events WHERE owner=%(owner_id)s ORDER BY date DESC;
     """
 
     rows = exec_get_all(sql, {"owner_id": owner_id})
-    return [BalanceEvent(r[0], r[1], r[2], r[3], r[4]) for r in rows]
+    return [BalanceEvent(r[0], r[1], r[2], r[3], r[4], r[5]) for r in rows]
 
 def delete_balance_event(id: UUID):
     sql = "DELETE FROM balance_events WHERE id = %(id)s;"
     exec_commit(sql, {"id": id})
 
-def update_balance_event(id: UUID, name: str, amount: float):
+def update_balance_event(id: UUID, name: str, amount: float, category_id: UUID | None = None):
     sql = """
         UPDATE balance_events SET 
             name = COALESCE(%(name)s,name), 
-            amount = COALESCE(%(amount)s,amount) 
+            amount = COALESCE(%(amount)s,amount),
+            category_id = COALESCE(%(category_id)s, category_id)
         WHERE id = %(id)s;
         """
-    exec_commit(sql, {"id": id, "name": name, "amount": amount})
+    exec_commit(sql, {"id": id, "name": name, "amount": amount, "category_id": category_id})
 
 # MARK: Budget Goal
 def insert_budget_goal(goal: BudgetGoal):
