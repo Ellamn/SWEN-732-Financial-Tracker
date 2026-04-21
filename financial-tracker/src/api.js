@@ -43,9 +43,17 @@ export const createUser = (name) => req("POST", "/users/", { name });
 
 // balance (transaction) wrappers
 export const getBalancesByOwner = (owner) => req("GET", `/balance/owner/${owner}`);
-export const createBalanceEvent = (owner, name, amount, date) => req("POST", "/balance/", { owner, name, amount: Math.round(amount * 100), date });
+export const createBalanceEvent = (owner, name, amount, date, category_id = null) => {
+    const body = { owner, name, amount: Math.round(amount * 100), date };
 
-export const updateBalanceEvent = (id, name, amount) => {
+    if (category_id) {
+        body.category_id = category_id;
+    }
+
+    return req("POST", "/balance/", body);
+};
+
+export const updateBalanceEvent = (id, name, amount, category_id = null) => {
     const params = {};
 
     if (name !== null && name !== undefined) {
@@ -54,6 +62,10 @@ export const updateBalanceEvent = (id, name, amount) => {
 
     if (amount !== null && amount !== undefined) {
         params.amount = Math.round(amount * 100);
+    }
+
+    if (category_id) {
+        params.category_id = category_id;
     }
 
     return req("PUT", `/balance/${id}`, null, params);

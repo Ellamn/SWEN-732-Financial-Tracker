@@ -31,9 +31,10 @@ vi.mock('../context/UserContext', () => ({
  */
 vi.mock('../api', () => ({
   getBalancesByOwner: vi.fn().mockResolvedValue([
-    { event_id: 'tx1', owner: 'test-user-id', name: 'Part-time Job', amount: 150000, date: '2026-04-01' },
-    { event_id: 'tx2', owner: 'test-user-id', name: 'Rent Payment', amount: -4500, date: '2026-04-01' },
+    { event_id: 'tx1', owner: 'test-user-id', name: 'Part-time Job', amount: 150000, date: '2026-04-01', category_id: null },
+    { event_id: 'tx2', owner: 'test-user-id', name: 'Rent Payment', amount: -4500, date: '2026-04-01', category_id: null },
   ]),
+  getExpenseCategoriesByOwner: vi.fn().mockResolvedValue([]),
   createBalanceEvent: vi.fn().mockResolvedValue({ event_id: 'tx3' }),
   updateBalanceEvent: vi.fn(),
   deleteBalanceEvent: vi.fn().mockResolvedValue({}),

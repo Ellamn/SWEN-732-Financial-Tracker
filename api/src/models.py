@@ -10,14 +10,15 @@ from database.src.models.user               import User             as db_User
 
 
 class BalanceEvent(db_BalanceEvent):
-    event_id: UUID = uuid1()
-    owner   : UUID
-    name    : str
-    amount  : float
-    date    : datetime
+    event_id    : UUID = uuid1()
+    owner       : UUID
+    name        : str
+    amount      : float
+    date        : datetime
+    category_id : UUID | None = None
 
-    def __init__(self, owner: UUID, name: str, amount: float, date: datetime, event_id: UUID | str = uuid1()):
-        super().__init__(event_id, owner, name, amount, date)
+    def __init__(self, owner: UUID, name: str, amount: float, date: datetime, event_id: UUID | str = uuid1(), category_id: UUID | str | None = None):
+        super().__init__(event_id, owner, name, amount, date, category_id)
 
 
 class BudgetGoal(db_BudgetGoal):
