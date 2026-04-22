@@ -16,6 +16,7 @@ export default defineConfig({
         'src/data/**',
         'src/test/**',
       ],
-    },
+      reporter: 'lcov',
+    }
   },
 })
