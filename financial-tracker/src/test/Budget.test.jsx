@@ -11,19 +11,27 @@
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import PropTypes from 'prop-types';
 import * as api from '../api';
 import Budget from '../pages/Budget';
 
-vi.mock('recharts', () => ({
-  ResponsiveContainer: ({ children }) => <div>{children}</div>,
-  PieChart: ({ children }) => <div>{children}</div>,
-  Pie: ({ children }) => <div>{children}</div>,
-  Cell: () => <div />,
-  Tooltip: ({ formatter }) => {
+vi.mock('recharts', () => {
+  const ResponsiveContainer = ({ children }) => <div>{children}</div>;
+  const PieChart = ({ children }) => <div>{children}</div>;
+  const Pie = ({ children }) => <div>{children}</div>;
+  const Cell = () => <div />;
+  const Tooltip = ({ formatter }) => {
     const [value, name] = formatter ? formatter(50, 'Needs') : ['', ''];
     return <div data-testid="tooltip-preview">{value} {name}</div>;
-  },
-}));
+  };
+
+  ResponsiveContainer.propTypes = { children: PropTypes.node };
+  PieChart.propTypes = { children: PropTypes.node };
+  Pie.propTypes = { children: PropTypes.node };
+  Tooltip.propTypes = { formatter: PropTypes.func };
+
+  return { ResponsiveContainer, PieChart, Pie, Cell, Tooltip };
+});
 
 /**
  * Mock the UserContext to provide a fake logged-in user.
